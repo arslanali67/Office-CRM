@@ -69,7 +69,10 @@ export class DmProcessor {
         ]);
         const kb: KbArticle[] = articles.map((a: any) => ({ name: a.name, text: a.bodyPlain || stripHtml(a.body ?? '') }));
         result = await classifyAndDraft({ from: conv.customerName ?? conv.customerId, subject: '', body: dm.text, history }, kb);
-        const d = decide(result, rules, dm.channel, settings.aiDraftOnly !== false || settings.aiAutoReplyPaused === true); // paused = emergency switch
+        const since = Date.now() - 24 * 3600e3;
+        const recent = (await this.espo.list('SocialMessage', { ...eq('conversationId', conv.id, 0), ...eq('status', 'auto_replied', 1), select: 'createdAt', maxSize: '20' }))
+          .filter((m: any) => Date.parse(String(m.createdAt).replace(' ', 'T') + 'Z') > since).length;
+        const d = decide(result, rules, dm.channel, settings.aiDraftOnly !== false || settings.aiAutoReplyPaused === true, recent); // paused = emergency switch
         await this.finish(conv, message, dm, result, d);
         return;
       } catch (e) {

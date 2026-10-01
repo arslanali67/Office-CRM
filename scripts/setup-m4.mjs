@@ -71,7 +71,7 @@ Sign as: Ahmed, Business Development, PLACEHOLDER Company.`,
 });
 // ---- PDF version of a proposal (button 'Send proposal PDF' on the lead) ----
 const company = process.env.COMPANY_NAME ?? 'PLACEHOLDER Company Ltd';
-const pdfBody = `<h2 style="color:#1f3a5f">{{aiProposalSubject}}</h2><p>{{{aiProposalBody}}}</p><hr><p style="font-size:9pt;color:#777">${company}<br>${companyAddress}</p>`;
+const pdfBody = `<h2 style="color:#1f3a5f">{{aiProposalSubject}}</h2><p>{{{proposalHtml}}}</p><hr><p style="font-size:9pt;color:#777">${company}<br>${companyAddress}</p>`;
 const pdf = (await api('GET', `Template?${new URLSearchParams({ 'where[0][type]': 'equals', 'where[0][attribute]': 'name', 'where[0][value]': 'Lead proposal PDF', maxSize: '1' })}`)).list[0];
 const pdfData = { name: 'Lead proposal PDF', entityType: 'Lead', status: 'Active', body: pdfBody, filename: 'Proposal-{{accountName}}.pdf', pageFormat: 'A4', topMargin: 20, bottomMargin: 20, leftMargin: 20, rightMargin: 20 };
 if (pdf) await api('PUT', `Template/${pdf.id}`, pdfData); else await api('POST', 'Template', pdfData);

@@ -7,7 +7,7 @@
 set -eu
 set -a; . ./.env; set +a
 TS="${1:?usage: restore.sh <timestamp> [--from-remote] [--yes]}"; shift
-DIR="${BACKUP_DIR:-./backups}"; DB="${RESTORE_DB:-$MYSQL_DATABASE}"; YES=0; REMOTE=0
+DIR="${BACKUP_DIR:-./backups}"; DB="${RESTORE_DB:-$MYSQL_DATABASE}"; case "$DB" in *[!A-Za-z0-9_]*|"") echo "invalid database name" >&2; exit 1;; esac; YES=0; REMOTE=0
 for a in "$@"; do [ "$a" = "--yes" ] && YES=1; [ "$a" = "--from-remote" ] && REMOTE=1; done
 
 if [ "$REMOTE" = 1 ]; then
@@ -15,7 +15,7 @@ if [ "$REMOTE" = 1 ]; then
   mkdir -p "$DIR"; ENVFILE="$DIR/.rclone-env.$$"; : > "$ENVFILE"; chmod 600 "$ENVFILE"; trap 'rm -f "$ENVFILE"' EXIT; env | grep '^RCLONE_' > "$ENVFILE" || true
   MOUNT=""; [ -n "${BACKUP_REMOTE_MOUNT:-}" ] && MOUNT="-v $BACKUP_REMOTE_MOUNT"
   mkdir -p "$DIR"
-  docker run --rm --env-file "$ENVFILE" -v "$(pwd)/$DIR:/data" $MOUNT rclone/rclone:latest copy "$BACKUP_REMOTE" /data --include "*_$TS*"
+  docker run --rm --env-file "$ENVFILE" -v "$(pwd)/$DIR:/data" $MOUNT rclone/rclone:1.68 copy "$BACKUP_REMOTE" /data --include "*_$TS*"
 fi
 
 DBFILE="$DIR/db_$TS.sql.gz"; FILES="$DIR/files_$TS.tar.gz"

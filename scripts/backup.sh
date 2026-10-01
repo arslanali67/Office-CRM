@@ -33,7 +33,7 @@ fi
 ENVFILE="$DIR/.rclone-env.$$"; : > "$ENVFILE"; chmod 600 "$ENVFILE"; trap 'rm -f "$ENVFILE"' EXIT
 env | grep '^RCLONE_' > "$ENVFILE" || true
 MOUNT=""; [ -n "${BACKUP_REMOTE_MOUNT:-}" ] && MOUNT="-v $BACKUP_REMOTE_MOUNT"
-rclone() { docker run --rm --env-file "$ENVFILE" -v "$(pwd)/$DIR:/data:ro" $MOUNT rclone/rclone:latest "$@"; }
+rclone() { docker run --rm --env-file "$ENVFILE" -v "$(pwd)/$DIR:/data:ro" $MOUNT rclone/rclone:1.68 "$@"; }
 
 rclone copy /data "$BACKUP_REMOTE" --include "*_$TS*" --checksum
 # verify what arrived: names and sizes must match

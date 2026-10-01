@@ -1,15 +1,18 @@
 {
     "fields": {
         "attendanceAllowedIps": {
-            "type": "varchar"
+            "type": "varchar",
+            "onlyAdmin": true
         },
         "attendanceOfficeStart": {
             "type": "varchar",
-            "default": "09:00"
+            "default": "09:00",
+            "onlyAdmin": true
         },
         "attendanceTrustProxy": {
             "type": "bool",
-            "default": false
+            "default": false,
+            "onlyAdmin": true
         },
         "aiDraftOnly": {
             "type": "bool",

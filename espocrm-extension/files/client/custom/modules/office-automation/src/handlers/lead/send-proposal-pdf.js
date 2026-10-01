@@ -11,7 +11,7 @@ define('office-automation:handlers/lead/send-proposal-pdf', ['action-handler'], 
 
         send: function () {
             const model = this.view.model;
-            const message = this.view.translate('confirmProposalPdf', 'messages', 'Lead').replace('{to}', model.get('emailAddress'));
+            const message = this.view.translate('confirmProposalPdf', 'messages', 'Lead').replace('{to}', Handlebars.Utils.escapeExpression(model.get('emailAddress'))); // untrusted text, shown as HTML
 
             Espo.Ui.confirm(message, {
                 confirmText: this.view.translate('Send proposal PDF', 'labels', 'Lead'),

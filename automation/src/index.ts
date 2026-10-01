@@ -43,7 +43,13 @@ if (import.meta.main) {
     return raw;
   };
 
-  createServer(async (req, res) => {
+  process.on('unhandledRejection', e => log({ event: 'unhandled_rejection', error: String(e) }));
+
+  const server = createServer((req, res) => {
+    handle(req, res).catch(e => { log({ event: 'request_error', error: String(e) }); if (!res.headersSent) res.writeHead(500).end(); });
+  });
+
+  async function handle(req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse): Promise<void> {
     const url = new URL(req.url ?? '/', 'http://x');
     if (url.pathname === '/health') return void res.end('ok');
 
@@ -86,5 +92,7 @@ if (import.meta.main) {
       else if (route === '/webhooks/social-message') dmQ(() => dms.handleOutbound(id), { id });
       else emailQ(() => emails.handle(id), { id });
     }
-  }).listen(Number(PORT), () => log({ event: 'listening', port: PORT }));
+  }
+
+  server.listen(Number(PORT), () => log({ event: 'listening', port: PORT }));
 }

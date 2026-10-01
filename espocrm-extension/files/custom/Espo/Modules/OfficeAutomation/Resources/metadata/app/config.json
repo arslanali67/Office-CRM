@@ -1,0 +1,10 @@
+{
+    "params": {
+        "webhookAllowedAddressList": {
+            "level": "admin"
+        },
+        "emailServerAllowedAddressList": {
+            "level": "admin"
+        }
+    }
+}

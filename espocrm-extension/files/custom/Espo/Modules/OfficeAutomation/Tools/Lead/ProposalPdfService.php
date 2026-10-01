@@ -10,6 +10,7 @@ use Espo\Core\FileStorage\Manager as FileStorageManager;
 use Espo\Entities\Attachment;
 use Espo\ORM\EntityManager;
 use Espo\Tools\Email\SendService;
+use Espo\Tools\Pdf\Data;
 use Espo\Tools\Pdf\Params;
 use Espo\Tools\Pdf\Service as PdfService;
 
@@ -55,8 +56,17 @@ class ProposalPdfService
             ->where(['status' => 'Active', 'useSmtp' => true])->order('smtpIsForMassEmail', 'DESC')->findOne()
             ?? throw new BadRequest('No company mailbox with SMTP is configured.');
 
+        // The proposal text is AI output and may contain text from a lead's notes: it must never reach the PDF as HTML.
+        // The template therefore uses {{{proposalHtml}}} (escaped here), never the raw field in triple braces.
+        if (preg_match('/\{\{\{\s*aiProposalBody\s*\}\}\}/', (string) $template->get('body'))) {
+            throw new BadRequest('The PDF template prints the proposal unescaped. Re-run setup-m4 to restore the safe template.');
+        }
+        $data = Data::create()->withAdditionalTemplateData((object) [
+            'proposalHtml' => nl2br(htmlspecialchars((string) $lead->get('aiProposalBody'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'), false),
+        ]);
+
         // Access to the lead was checked above; the template is a company asset, so employees need no Template access.
-        $pdf = $this->pdfService->generate('Lead', $leadId, $template->getId(), Params::create()->withAcl(false));
+        $pdf = $this->pdfService->generate('Lead', $leadId, $template->getId(), Params::create()->withAcl(false), $data);
 
         /** @var Attachment $attachment */
         $attachment = $this->entityManager->createEntity('Attachment', [

@@ -8,6 +8,14 @@
 set -eu
 [ "$(id -u)" = 0 ] || { echo "Run as root"; exit 1; }
 
+# Refuse to turn off SSH passwords when nobody could log in afterwards.
+KEYS=$(cat /root/.ssh/authorized_keys /home/*/.ssh/authorized_keys 2>/dev/null | grep -cE '^(ssh-|ecdsa-|sk-)' || true)
+if [ "${KEYS:-0}" -eq 0 ] && [ "${FORCE:-0}" != 1 ]; then
+  echo "No SSH public key found in any authorized_keys file. Disabling password login now would lock you out." >&2
+  echo "Add your key first (ssh-copy-id), or run with FORCE=1 if you know what you are doing." >&2
+  exit 1
+fi
+
 apt-get update -y
 DEBIAN_FRONTEND=noninteractive apt-get install -y ufw unattended-upgrades fail2ban
 

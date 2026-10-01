@@ -65,3 +65,10 @@ test('interest tagging of replies', () => {
   assert.equal(stubInterest('What is included in the package?'), 'question');
   assert.equal(stubInterest('hmm'), 'question');
 });
+
+test('a proposal containing a link, email or phone that is in neither the brief nor the knowledge base is rejected', () => {
+  const ok = { subject: 'Hello', body: 'Hi Pia, USD 799 for the starter package. Reply to ahmed@acme.test or see https://acme.test/offer' };
+  assert.equal(proposalProblem(ok, brief, `${allowed}\nahmed@acme.test https://acme.test/offer`), null);
+  assert.match(proposalProblem(ok, brief, allowed)!, /contact detail/);
+  assert.match(proposalProblem({ ...ok, body: 'Hi, USD 799. Call +1 555 123 4567 today' }, brief, allowed)!, /contact detail/);
+});

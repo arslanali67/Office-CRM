@@ -8,7 +8,11 @@ const admin = basic('admin', process.env.ESPOCRM_ADMIN_PASSWORD);
 const emp = n => basic(`emp${n}`, process.env.EMPLOYEE_PASSWORD);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const call = async (who, method, path, body) => {
-  const r = await fetch(BASE + path, { method, headers: { ...who, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  let r;
+  for (let i = 0; ; i++) {
+    try { r = await fetch(BASE + path, { method, headers: { ...who, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined }); break; }
+    catch (e) { if (i >= 3) throw e; await sleep(1500); }
+  }
   const t = await r.text();
   return { s: r.status, reason: r.headers.get('x-status-reason') ?? '', j: t.startsWith('{') || t.startsWith('[') ? JSON.parse(t) : t };
 };
@@ -37,6 +41,13 @@ ok('the attachment is a real PDF named after the company', m?.attachments?.[0]?.
 ok('the email body is personal and has no placeholders', /^Hi Pia,/.test(m?.body) && !/[{}\[\]]|undefined|null/.test(m?.body), m?.body);
 const sent = (await call(admin, 'GET', `Email?${new URLSearchParams({ 'where[0][type]': 'equals', 'where[0][attribute]': 'name', 'where[0][value]': `Our proposal for Pdf Co ${stamp}`, maxSize: '1' })}`)).j.list?.[0];
 ok('the sent email is stored and linked to the lead', sent?.status === 'Sent' && sent.parentType === 'Lead' && sent.parentId === lead.id, JSON.stringify(sent && [sent.status, sent.parentType]));
+
+// The proposal text is AI output (and may contain text from a lead's notes): HTML in it must show up as text, never act as HTML.
+const evil = await mk({ firstName: 'Evil', emailAddress: `evil-${stamp}@customer.test`, aiProposalSubject: 'Subject', aiProposalBody: 'Hi <b>bold</b> <img src="http://mock-meta:4010/_sent"> <h1>BIG</h1>\nsecond line' });
+await call(admin, 'POST', 'Email/action/sendLeadPdf', { leadId: evil.id });
+let em = []; for (let i = 0; i < 15 && !em.length; i++) { em = mailbox(`evil-${stamp}@customer.test`); if (!em.length) await sleep(1000); }
+ok('HTML inside the proposal is printed as text in the PDF, not interpreted', /<b>bold<\/b>/.test(em[0]?.pdfText ?? '') && /<h1>BIG<\/h1>/.test(em[0].pdfText) && /second line/.test(em[0].pdfText), em[0]?.pdfText);
+await call(admin, 'DELETE', `Lead/${evil.id}`);
 
 await call(admin, 'PUT', `Lead/${lead.id}`, { emailAddressIsOptedOut: true });
 ok('an opted-out lead is refused', (await call(admin, 'POST', 'Email/action/sendLeadPdf', { leadId: lead.id })).s === 400);

@@ -53,6 +53,38 @@ export function guardPrices(result: AiResult, kb: KbArticle[]): AiResult {
   return { ...result, confident: false, reason: `${result.reason} [price not in knowledge base: ${unknown.join(', ')}]`.trim() };
 }
 
+// ---------- contact-detail guard (prompt-injection defence) ----------
+// A message or a lead's notes can try to make the AI put a link, address or phone number of the attacker's choosing into
+// a reply that goes out under the company's name. Any such detail must already exist in the knowledge base (or brief).
+
+const URL_RE = /\b(?:https?:\/\/|www\.)[^\s<>"')\]]+/gi;
+const EMAIL_RE = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
+const PHONE_RE = /\+?\d[\d\s().-]{7,}\d/g;
+const DATE_RE = /\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2}[./]\d{1,2}[./]\d{2,4}\b/g;
+
+/** Links, email addresses and phone numbers found in a text, normalised so the same detail compares equal. */
+export function contactsIn(text: string): string[] {
+  const out = new Set<string>();
+  for (const u of text.match(URL_RE) ?? []) out.add('url:' + u.toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/[/.,;:!?]+$/, ''));
+  for (const e of text.match(EMAIL_RE) ?? []) out.add('mail:' + e.toLowerCase());
+  for (const p of text.replace(DATE_RE, ' ').match(PHONE_RE) ?? []) {
+    const d = p.replace(/\D/g, '');
+    if (d.length >= 9) out.add('tel:' + d);
+  }
+  return [...out];
+}
+
+export function unknownContacts(text: string, allowedText: string): string[] {
+  const known = new Set(contactsIn(allowedText));
+  return contactsIn(text).filter(c => !known.has(c));
+}
+
+export function guardContacts(result: AiResult, kb: KbArticle[]): AiResult {
+  const unknown = unknownContacts(result.reply, kb.map(a => a.text).join('\n'));
+  if (!unknown.length) return result;
+  return { ...result, confident: false, reason: `${result.reason} [contact detail not in knowledge base: ${unknown.join(', ')}]`.trim() };
+}
+
 // ---------- stub ----------
 
 const STUB_RULES: [Category, RegExp][] = [
@@ -139,5 +171,5 @@ export async function classifyAndDraftUnguarded(msg: Incoming, kb: KbArticle[], 
 }
 
 export async function classifyAndDraft(msg: Incoming, kb: KbArticle[], cfg = defaultAiConfig()): Promise<AiResult> {
-  return guardPrices(await classifyAndDraftUnguarded(msg, kb, cfg), kb);
+  return guardContacts(guardPrices(await classifyAndDraftUnguarded(msg, kb, cfg), kb), kb);
 }

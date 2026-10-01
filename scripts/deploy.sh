@@ -18,6 +18,8 @@ for a in "$@"; do
 done
 
 [ -f .env ] || { echo "No .env: copy .env.example to .env and fill it in first." >&2; exit 1; }
+chmod 600 .env 2>/dev/null || true # it holds every secret
+trap 'rm -f .deploy-env' EXIT INT TERM
 set -a; . ./.env; set +a
 if [ "$LOCAL" = 1 ]; then
   export COMPOSE_PATH_SEPARATOR=: COMPOSE_FILE=docker-compose.yml:docker-compose.local.yml LOCAL_MAILSERVER=1
@@ -112,6 +114,8 @@ run_checks() {
     curl -sI --max-time 20 "$URL/" | grep -qi '^strict-transport-security' && pass "HSTS header is sent" || bad "no HSTS header"
     PUB=$(docker compose ps --format '{{.Service}} {{.Ports}}' | grep -E '0\.0\.0\.0:|:::' | grep -v '^caddy ' || true)
     [ -z "$PUB" ] && pass "only Caddy is reachable from outside" || bad "other services publish ports: $PUB"
+    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -H 'X-Api-Key: probe' "$URL/api/v1/App/user" || true)
+    [ "$code" = 403 ] && pass "API-key requests from the internet are refused" || bad "an API key request from outside answered '$code' (expected 403 from Caddy)"
     crontab -l 2>/dev/null | grep -q 'scripts/backup.sh' && pass "nightly backup is scheduled" || warn "nightly backup is not scheduled: sh scripts/install-cron.sh"
   fi
   if [ -n "${META_VERIFY_TOKEN:-}" ]; then

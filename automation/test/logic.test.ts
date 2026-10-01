@@ -70,3 +70,29 @@ test('webhook signature: valid, tampered and missing', () => {
   assert.equal(validSignature(body, undefined, 's3cret'), false);
   assert.equal(validSignature(body, sig, ''), false);
 });
+
+import { contactsIn, guardContacts, unknownContacts } from '../src/ai.ts';
+
+test('contact guard: a link, address or phone that is not in the knowledge base forces a human', () => {
+  const kb2 = [{ name: 'Contact', text: 'Visit https://www.acme.test/book or write to hello@acme.test. Call +92 300 1234567. Offer ends 2026-10-31.' }];
+  const reply = (t: string) => guardContacts({ category: 'inquiry', confident: true, reply: t, reason: '' }, kb2);
+  assert.equal(reply('Book at acme.test/book or hello@acme.test or +92-300-1234567.').confident, true, 'same details, different formatting');
+  assert.equal(reply('Pay here: http://evil.example/pay').confident, false);
+  assert.equal(reply('Write to support@evil.example').confident, false);
+  assert.equal(reply('Call 0900 123 456 789 now').confident, false);
+  assert.equal(reply('The offer ends 2026-10-31 and costs nothing extra.').confident, true, 'a date is not a phone number');
+  assert.match(reply('see www.evil.example').reason, /not in knowledge base/);
+});
+
+test('contact guard: details inside a longer text are found', () => {
+  assert.deepEqual(contactsIn('Hi, click https://x.test/a?b=1. Thanks, a@b.co').sort(), ['mail:a@b.co', 'url:x.test/a?b=1']);
+  assert.deepEqual(unknownContacts('nothing here, USD 799', 'anything'), []);
+});
+
+test('decide: a sender who already got the daily maximum of automatic replies goes to a person', () => {
+  const rules2: Rule[] = [{ category: 'pricing', channel: 'email', autoSend: true }];
+  const r = { category: 'pricing', confident: true, reply: 'USD 799', reason: '' } as AiResult;
+  assert.equal(decide(r, rules2, 'email', false, 4, 5).send, true);
+  assert.equal(decide(r, rules2, 'email', false, 5, 5).send, false);
+  assert.equal(decide(r, rules2, 'email', false, 5, 5).aiStatus, 'needs_human');
+});

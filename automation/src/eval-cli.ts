@@ -10,7 +10,7 @@
 // Exit code 0 = passed, 1 = failed. On a dev machine: node --env-file=.env automation/src/eval-cli.ts ...
 import { readFileSync } from 'node:fs';
 import { Espo } from './espo.ts';
-import { classifyAndDraftUnguarded, defaultAiConfig, guardPrices, type KbArticle } from './ai.ts';
+import { classifyAndDraftUnguarded, defaultAiConfig, guardContacts, guardPrices, type KbArticle } from './ai.ts';
 import { isCategory, parseCsv, score, type Case } from './eval.ts';
 import { proposalProblem } from './lead-ai.ts';
 
@@ -49,7 +49,7 @@ async function emails(file: string): Promise<boolean> {
 
   const cases = await pool(rows, 4, async r => {
     const raw = await classifyAndDraftUnguarded({ from: r.from || 'customer@example.com', subject: r.subject, body: r.body, history: [] }, kb).catch(e => ({ category: 'other' as const, confident: false, reply: '', reason: String(e) }));
-    return { subject: r.subject || r.body.slice(0, 50), expected: r.expected_category, got: raw.category, confident: raw.confident, reply: raw.reply, guardedConfident: guardPrices(raw, kb).confident } as Case;
+    return { subject: r.subject || r.body.slice(0, 50), expected: r.expected_category, got: raw.category, confident: raw.confident, reply: raw.reply, guardedConfident: guardContacts(guardPrices(raw, kb), kb).confident } as Case;
   });
   const s = score(cases, kbText);
 

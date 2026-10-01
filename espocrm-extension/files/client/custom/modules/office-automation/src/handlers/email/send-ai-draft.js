@@ -13,7 +13,7 @@ define('office-automation:handlers/email/send-ai-draft', ['action-handler'], fun
 
         send: function () {
             const model = this.view.model;
-            const message = this.view.translate('aiDraftConfirm', 'messages', 'Email').replace('{to}', model.get('from'));
+            const message = this.view.translate('aiDraftConfirm', 'messages', 'Email').replace('{to}', Handlebars.Utils.escapeExpression(model.get('from'))); // sender text is untrusted and shown as HTML
 
             Espo.Ui.confirm(message, {confirmText: this.view.translate('Send AI draft', 'labels', 'Email'), cancelText: this.view.translate('Cancel')}, async () => {
                 Espo.Ui.notifyWait();

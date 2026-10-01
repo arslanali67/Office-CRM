@@ -25,10 +25,13 @@ export function skipReason(email: any, ownAddresses: Set<string>): string | null
 
 export type Decision = { aiStatus: 'auto_replied' | 'needs_human' | 'ignored'; send: boolean };
 
-export function decide(r: AiResult, rules: Rule[], channel: string, draftOnly: boolean): Decision {
+/** Most automatic replies one sender can get in 24 hours: a mail-bomb or a ping-pong with another robot must not run up costs or reputation. */
+export const AUTO_REPLY_DAILY_CAP = Number(process.env.AUTO_REPLY_DAILY_CAP ?? 5);
+
+export function decide(r: AiResult, rules: Rule[], channel: string, draftOnly: boolean, recentAutoReplies = 0, cap = AUTO_REPLY_DAILY_CAP): Decision {
   if (r.category === 'spam') return { aiStatus: 'ignored', send: false };
   const allowed = rules.some(x => x.category === r.category && x.channel === channel && x.autoSend);
-  const send = r.confident && allowed && !ALWAYS_HUMAN.includes(r.category) && !draftOnly && r.reply.length > 0;
+  const send = r.confident && allowed && !ALWAYS_HUMAN.includes(r.category) && !draftOnly && r.reply.length > 0 && recentAutoReplies < cap;
   return { aiStatus: send ? 'auto_replied' : 'needs_human', send };
 }
 
@@ -97,7 +100,10 @@ export class EmailProcessor {
       return;
     }
 
-    const d = decide(result, rules, 'email', settings.aiDraftOnly !== false || settings.aiAutoReplyPaused === true);
+    const since = Date.now() - 24 * 3600e3;
+    const recent = (await this.espo.list('Email', { 'where[0][type]': 'equals', 'where[0][attribute]': 'from', 'where[0][value]': email.from, 'where[1][type]': 'equals', 'where[1][attribute]': 'aiStatus', 'where[1][value]': 'auto_replied', select: 'createdAt', maxSize: '20' }).catch(() => null))
+      ?.filter((e: any) => Date.parse(String(e.createdAt).replace(' ', 'T') + 'Z') > since).length ?? AUTO_REPLY_DAILY_CAP; // lookup failed: fail safe, a person decides
+    const d = decide(result, rules, 'email', settings.aiDraftOnly !== false || settings.aiAutoReplyPaused === true, recent);
     // Safe default first: if we crash before sending, a person sees the draft and nothing is ever sent twice.
     await this.espo.put(`Email/${id}`, { aiCategory: result.category, aiDraft: result.reply, aiDraftOriginal: result.reply, aiStatus: d.send ? 'needs_human' : d.aiStatus });
     this.log({ event: 'classified', id, category: result.category, confident: result.confident, aiStatus: d.aiStatus, reason: result.reason });

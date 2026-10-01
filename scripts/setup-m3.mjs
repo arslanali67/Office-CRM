@@ -34,7 +34,6 @@ const role = await upsert('Role', 'name', 'Automation', {
 });
 const apiUser = await upsert('User', 'userName', 'automation', {
   userName: 'automation', type: 'api', authMethod: 'ApiKey', firstName: 'Automation', lastName: 'Service', isActive: true, rolesIds: [role.id],
-  ...(process.env.AUTOMATION_IP ? { ipAddress: process.env.AUTOMATION_IP } : {}), // ponytail: set AUTOMATION_IP in production to restrict the API user
 });
 const apiKey = (await api('GET', `User/${apiUser.id}`)).apiKey;
 if (!apiKey) throw new Error('API user has no apiKey');

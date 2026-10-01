@@ -9,8 +9,22 @@
 		-Server
 	}
 
+	# Machine credentials never come in from the internet: the automation service talks to EspoCRM inside the Docker
+	# network, not through this proxy. EspoCRM cannot restrict an API user to an address, so refuse them here.
+	@apikey header X-Api-Key *
+	@hmac header X-Hmac-Authorization *
+	handle @apikey {
+		respond "Forbidden" 403
+	}
+	handle @hmac {
+		respond "Forbidden" 403
+	}
+
 	# Meta (Instagram/Facebook) webhooks: the only public path of the automation service
 	handle /webhooks/meta {
+		request_body {
+			max_size 1MB
+		}
 		reverse_proxy automation:3000
 	}
 

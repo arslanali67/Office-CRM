@@ -61,9 +61,12 @@ services:
   automation:
     build: ./automation
     restart: unless-stopped
+    read_only: true # it never writes to its own filesystem
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
     networks:
       default:
-        ipv4_address: ${AUTOMATION_IP:-10.77.77.10} # fixed, so its API user can be restricted to this address
+        ipv4_address: ${AUTOMATION_IP:-10.77.77.10} # fixed private address (API-key requests from outside are refused by Caddy, see Caddyfile)
     environment:
       ESPO_URL: http://espocrm
       ESPO_API_KEY: ${ESPO_API_KEY}

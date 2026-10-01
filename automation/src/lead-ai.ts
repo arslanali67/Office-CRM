@@ -1,6 +1,6 @@
 // AI for leads (M4): personalised proposals, and interest tagging of replies to them.
 // Same pattern as ai.ts: real Claude when a key is set, keyword stub otherwise; everything validated before use.
-import { AMOUNT, claude, defaultAiConfig, digits, parseAiJson, type AiConfig, type KbArticle } from './ai.ts';
+import { AMOUNT, claude, defaultAiConfig, digits, parseAiJson, unknownContacts, type AiConfig, type KbArticle } from './ai.ts';
 
 export interface Lead {
   id: string; firstName?: string | null; lastName?: string | null; name?: string | null; accountName?: string | null;
@@ -26,6 +26,8 @@ export function proposalProblem(p: Proposal, brief: Brief, allowedText: string):
   const knownPct = new Set((allowedText.match(PERCENT) ?? []).map(digits));
   const badPct = (text.match(PERCENT) ?? []).map(digits).find(d => !knownPct.has(d));
   if (badPct) return `percentage not in brief or knowledge base: ${badPct}%`;
+  const badContact = unknownContacts(text, allowedText)[0];
+  if (badContact) return `contact detail not in brief or knowledge base: ${badContact}`;
   return null;
 }
 
