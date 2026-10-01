@@ -1,0 +1,47 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "status"
+                }
+            ],
+            [
+                {
+                    "name": "targetList"
+                },
+                {
+                    "name": "wordLimit"
+                }
+            ],
+            [
+                {
+                    "name": "instructions",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "generatedCount",
+                    "readOnly": true
+                },
+                {
+                    "name": "totalCount",
+                    "readOnly": true
+                }
+            ],
+            [
+                {
+                    "name": "failedCount",
+                    "readOnly": true
+                },
+                {
+                    "name": "massEmail"
+                }
+            ]
+        ]
+    }
+]

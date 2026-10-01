@@ -1,0 +1,25 @@
+{$CRM_DOMAIN} {
+	encode gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		X-Frame-Options SAMEORIGIN
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	# Meta (Instagram/Facebook) webhooks: the only public path of the automation service
+	handle /webhooks/meta {
+		reverse_proxy automation:3000
+	}
+
+	# EspoCRM live updates
+	handle /ws {
+		reverse_proxy espocrm-websocket:8080
+	}
+
+	handle {
+		reverse_proxy espocrm:80
+	}
+}

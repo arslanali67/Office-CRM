@@ -1,0 +1,32 @@
+[
+    {
+        "name": "personStringData",
+        "width": 18,
+        "notSortable": true,
+        "noLabel": true
+    },
+    {
+        "name": "subject",
+        "link": true,
+        "notSortable": true
+    },
+    {
+        "name": "aiCategory",
+        "width": 11
+    },
+    {
+        "name": "aiStatus",
+        "width": 11
+    },
+    {
+        "name": "parent",
+        "notSortable": true,
+        "width": 16
+    },
+    {
+        "name": "dateSent",
+        "notSortable": true,
+        "width": 10,
+        "align": "right"
+    }
+]

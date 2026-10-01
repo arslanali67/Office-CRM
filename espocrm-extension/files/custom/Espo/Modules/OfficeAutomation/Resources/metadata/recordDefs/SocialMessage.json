@@ -1,0 +1,5 @@
+{
+    "beforeCreateHookClassNameList": [
+        "Espo\\Modules\\OfficeAutomation\\Classes\\RecordHooks\\SocialMessage\\BeforeCreate"
+    ]
+}

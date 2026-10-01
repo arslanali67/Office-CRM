@@ -1,0 +1,31 @@
+{
+    "view": "office-automation:views/dashlets/ai-control",
+    "accessDataList": [
+        {
+            "isAdminOnly": true
+        }
+    ],
+    "options": {
+        "fields": {
+            "title": {
+                "type": "varchar",
+                "required": true
+            }
+        },
+        "defaults": {
+            "title": "AI control"
+        },
+        "layout": [
+            {
+                "rows": [
+                    [
+                        {
+                            "name": "title"
+                        },
+                        false
+                    ]
+                ]
+            }
+        ]
+    }
+}

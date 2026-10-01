@@ -1,0 +1,41 @@
+{
+    "labels": {
+        "Create SocialMessage": "Create message"
+    },
+    "fields": {
+        "conversation": "Conversation",
+        "direction": "Direction",
+        "text": "Text",
+        "externalId": "Meta message ID",
+        "aiCategory": "AI category",
+        "aiDraft": "AI draft reply",
+        "status": "Status",
+        "error": "Error",
+        "assignedUser": "Assigned to"
+    },
+    "options": {
+        "direction": {
+            "in": "Incoming",
+            "out": "Outgoing"
+        },
+        "aiCategory": {
+            "": "",
+            "inquiry": "Inquiry",
+            "pricing": "Pricing",
+            "booking": "Booking",
+            "complaint": "Complaint",
+            "refund_legal": "Refund / legal",
+            "lead_reply": "Lead reply",
+            "spam": "Spam",
+            "other": "Other"
+        },
+        "status": {
+            "new": "New",
+            "auto_replied": "Auto-replied",
+            "needs_human": "Needs human",
+            "sent": "Sent",
+            "failed": "Failed",
+            "ignored": "Ignored"
+        }
+    }
+}

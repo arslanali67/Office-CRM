@@ -1,0 +1,38 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "channel"
+                },
+                {
+                    "name": "status"
+                }
+            ],
+            [
+                {
+                    "name": "customerName"
+                },
+                {
+                    "name": "assignedUser"
+                }
+            ],
+            [
+                {
+                    "name": "customerId"
+                },
+                {
+                    "name": "contact"
+                }
+            ],
+            [
+                {
+                    "name": "lastMessageAt"
+                },
+                {
+                    "name": "windowExpiresAt"
+                }
+            ]
+        ]
+    }
+]

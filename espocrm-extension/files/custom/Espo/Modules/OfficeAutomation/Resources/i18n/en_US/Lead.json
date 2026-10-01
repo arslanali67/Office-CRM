@@ -1,0 +1,30 @@
+{
+    "fields": {
+        "aiProposalSubject": "AI proposal subject",
+        "aiProposalBody": "AI proposal body",
+        "interestLevel": "Interest level",
+        "proposalBrief": "Proposal brief",
+        "industryText": "Industry (from CSV)",
+        "interestTopic": "Interested in"
+    },
+    "links": {
+        "proposalBrief": "Proposal brief"
+    },
+    "options": {
+        "interestLevel": {
+            "": "",
+            "interested": "Interested",
+            "not_interested": "Not interested",
+            "question": "Question",
+            "out_of_office": "Out of office"
+        }
+    },
+    "labels": {
+        "AI proposal": "AI proposal",
+        "Send proposal PDF": "Send proposal PDF"
+    },
+    "messages": {
+        "confirmProposalPdf": "Email the branded proposal PDF to {to}?",
+        "proposalPdfSent": "Proposal PDF sent."
+    }
+}

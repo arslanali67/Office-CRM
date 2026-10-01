@@ -1,0 +1,41 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "emailAddress",
+        "notSortable": true,
+        "width": 16
+    },
+    {
+        "name": "accountName",
+        "width": 12
+    },
+    {
+        "name": "aiProposalSubject",
+        "width": 20
+    },
+    {
+        "name": "aiProposalBody",
+        "width": 28
+    },
+    {
+        "name": "interestLevel",
+        "width": 9
+    },
+    {
+        "name": "status",
+        "width": 9
+    },
+    {
+        "name": "assignedUser",
+        "width": 11,
+        "hidden": true
+    },
+    {
+        "name": "createdAt",
+        "width": 11,
+        "hidden": true
+    }
+]

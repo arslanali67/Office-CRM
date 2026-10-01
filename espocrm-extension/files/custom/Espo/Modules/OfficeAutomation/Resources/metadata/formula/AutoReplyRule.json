@@ -1,0 +1,5 @@
+{
+    "beforeSaveScriptList": [
+        "name = string\\concatenate(channel, ' / ', category);"
+    ]
+}

@@ -1,0 +1,25 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "targetList"
+    },
+    {
+        "name": "status",
+        "width": 12
+    },
+    {
+        "name": "generatedCount",
+        "width": 10
+    },
+    {
+        "name": "totalCount",
+        "width": 10
+    },
+    {
+        "name": "createdAt",
+        "width": 14
+    }
+]

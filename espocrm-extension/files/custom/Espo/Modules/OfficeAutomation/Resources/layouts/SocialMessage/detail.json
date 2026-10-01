@@ -1,0 +1,42 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "conversation"
+                },
+                {
+                    "name": "direction"
+                }
+            ],
+            [
+                {
+                    "name": "text",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "aiCategory"
+                },
+                {
+                    "name": "status"
+                }
+            ],
+            [
+                {
+                    "name": "aiDraft",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "externalId"
+                },
+                {
+                    "name": "error"
+                }
+            ]
+        ]
+    }
+]

@@ -1,0 +1,78 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "readOnly": true,
+            "required": false
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "category": {
+            "type": "enum",
+            "options": [
+                "inquiry",
+                "pricing",
+                "booking",
+                "complaint",
+                "refund_legal",
+                "lead_reply",
+                "spam",
+                "other"
+            ],
+            "required": true
+        },
+        "channel": {
+            "type": "enum",
+            "options": [
+                "email",
+                "instagram",
+                "facebook"
+            ],
+            "default": "email",
+            "required": true
+        },
+        "autoSend": {
+            "type": "bool",
+            "default": false
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "collection": {
+        "orderBy": "category",
+        "order": "asc"
+    },
+    "indexes": {
+        "categoryChannel": {
+            "columns": [
+                "category",
+                "channel",
+                "deleted"
+            ]
+        }
+    }
+}

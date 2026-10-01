@@ -1,0 +1,53 @@
+{
+    "fields": {
+        "aiCategory": {
+            "type": "enum",
+            "options": [
+                "",
+                "inquiry",
+                "pricing",
+                "booking",
+                "complaint",
+                "refund_legal",
+                "lead_reply",
+                "spam",
+                "other"
+            ],
+            "audited": false,
+            "isCustom": true
+        },
+        "aiDraft": {
+            "type": "text",
+            "rows": 8,
+            "isCustom": true
+        },
+        "aiStatus": {
+            "type": "enum",
+            "options": [
+                "",
+                "needs_human",
+                "auto_replied",
+                "sent",
+                "ignored"
+            ],
+            "style": {
+                "needs_human": "warning",
+                "auto_replied": "success",
+                "sent": "success",
+                "ignored": "default"
+            },
+            "isCustom": true
+        },
+        "followUpAt": {
+            "type": "datetime",
+            "isCustom": true
+        }
+    },
+    "indexes": {
+        "aiStatus": {
+            "columns": [
+                "aiStatus"
+            ]
+        }
+    }
+}

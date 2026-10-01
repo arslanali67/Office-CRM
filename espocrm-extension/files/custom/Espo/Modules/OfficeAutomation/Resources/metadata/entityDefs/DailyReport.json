@@ -1,0 +1,123 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "readOnly": true,
+            "required": false
+        },
+        "date": {
+            "type": "date",
+            "required": true
+        },
+        "details": {
+            "type": "text",
+            "rows": 10
+        },
+        "computedAt": {
+            "type": "datetime"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "tasksOpen": {
+            "type": "int",
+            "default": 0
+        },
+        "tasksOverdue": {
+            "type": "int",
+            "default": 0
+        },
+        "tasksCompleted": {
+            "type": "int",
+            "default": 0
+        },
+        "tasksCompletedOnTime": {
+            "type": "int",
+            "default": 0
+        },
+        "lateArrivals": {
+            "type": "int",
+            "default": 0
+        },
+        "emailsIn": {
+            "type": "int",
+            "default": 0
+        },
+        "facebookIn": {
+            "type": "int",
+            "default": 0
+        },
+        "instagramIn": {
+            "type": "int",
+            "default": 0
+        },
+        "aiAutoReplied": {
+            "type": "int",
+            "default": 0
+        },
+        "aiHandled": {
+            "type": "int",
+            "default": 0
+        },
+        "campaignSent": {
+            "type": "int",
+            "default": 0
+        },
+        "campaignOpened": {
+            "type": "int",
+            "default": 0
+        },
+        "campaignBounced": {
+            "type": "int",
+            "default": 0
+        },
+        "campaignOptedOut": {
+            "type": "int",
+            "default": 0
+        },
+        "overdueRate": {
+            "type": "float",
+            "default": 0,
+            "decimalPlaces": 1
+        },
+        "onTimeRate": {
+            "type": "float",
+            "default": 0,
+            "decimalPlaces": 1
+        },
+        "attendanceHours": {
+            "type": "float",
+            "default": 0,
+            "decimalPlaces": 1
+        },
+        "avgResponseMinutes": {
+            "type": "float",
+            "default": 0,
+            "decimalPlaces": 1
+        },
+        "aiAutomationRate": {
+            "type": "float",
+            "default": 0,
+            "decimalPlaces": 1
+        }
+    },
+    "links": {},
+    "collection": {
+        "orderBy": "date",
+        "order": "desc"
+    },
+    "indexes": {
+        "date": {
+            "unique": true,
+            "columns": [
+                "date",
+                "deleted"
+            ]
+        }
+    }
+}

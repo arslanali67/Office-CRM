@@ -1,0 +1,7 @@
+{
+    "primaryFilterClassNameMap": {
+        "open": "Espo\\Modules\\OfficeAutomation\\Classes\\Select\\Attendance\\PrimaryFilters\\Open",
+        "today": "Espo\\Modules\\OfficeAutomation\\Classes\\Select\\Attendance\\PrimaryFilters\\Today",
+        "late": "Espo\\Modules\\OfficeAutomation\\Classes\\Select\\Attendance\\PrimaryFilters\\Late"
+    }
+}

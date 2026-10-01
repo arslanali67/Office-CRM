@@ -1,0 +1,5 @@
+{
+    "primaryFilterClassNameMap": {
+        "needsHuman": "Espo\\Modules\\OfficeAutomation\\Classes\\Select\\Conversation\\PrimaryFilters\\NeedsHuman"
+    }
+}

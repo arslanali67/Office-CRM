@@ -1,0 +1,51 @@
+{
+    "fields": {
+        "aiProposalSubject": {
+            "type": "varchar",
+            "maxLength": 255,
+            "isCustom": true
+        },
+        "aiProposalBody": {
+            "type": "text",
+            "rows": 10,
+            "isCustom": true
+        },
+        "interestLevel": {
+            "type": "enum",
+            "options": [
+                "",
+                "interested",
+                "not_interested",
+                "question",
+                "out_of_office"
+            ],
+            "style": {
+                "interested": "success",
+                "not_interested": "danger",
+                "question": "warning"
+            },
+            "isCustom": true
+        },
+        "proposalBrief": {
+            "type": "link",
+            "isCustom": true
+        },
+        "industryText": {
+            "type": "varchar",
+            "maxLength": 150,
+            "isCustom": true
+        },
+        "interestTopic": {
+            "type": "varchar",
+            "maxLength": 150,
+            "isCustom": true
+        }
+    },
+    "links": {
+        "proposalBrief": {
+            "type": "belongsTo",
+            "entity": "ProposalBrief",
+            "foreign": "leads"
+        }
+    }
+}

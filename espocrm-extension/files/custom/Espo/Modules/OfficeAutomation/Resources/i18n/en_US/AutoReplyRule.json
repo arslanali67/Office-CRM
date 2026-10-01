@@ -1,0 +1,27 @@
+{
+    "labels": {
+        "Create AutoReplyRule": "Add auto-reply rule"
+    },
+    "fields": {
+        "category": "Category",
+        "channel": "Channel",
+        "autoSend": "Send automatically"
+    },
+    "options": {
+        "category": {
+            "inquiry": "Inquiry",
+            "pricing": "Pricing",
+            "booking": "Booking",
+            "complaint": "Complaint",
+            "refund_legal": "Refund / legal",
+            "lead_reply": "Lead reply",
+            "spam": "Spam",
+            "other": "Other"
+        },
+        "channel": {
+            "email": "Email",
+            "instagram": "Instagram",
+            "facebook": "Facebook"
+        }
+    }
+}

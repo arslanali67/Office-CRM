@@ -1,0 +1,20 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "category"
+                },
+                {
+                    "name": "channel"
+                }
+            ],
+            [
+                {
+                    "name": "autoSend"
+                },
+                false
+            ]
+        ]
+    }
+]

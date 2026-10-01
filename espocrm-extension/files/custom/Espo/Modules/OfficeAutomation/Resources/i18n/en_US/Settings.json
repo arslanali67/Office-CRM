@@ -1,0 +1,9 @@
+{
+    "fields": {
+        "attendanceAllowedIps": "Attendance: allowed office IPs (comma separated, empty = any)",
+        "attendanceOfficeStart": "Attendance: office start time (HH:MM)",
+        "attendanceTrustProxy": "Attendance: trust X-Forwarded-For",
+        "aiDraftOnly": "AI: draft-only mode (a person must approve every reply)",
+        "aiAutoReplyPaused": "AI: emergency pause of all automatic replies"
+    }
+}

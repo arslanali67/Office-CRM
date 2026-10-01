@@ -1,0 +1,41 @@
+[
+    {
+        "rows": [
+            [
+                {
+                    "name": "assignedUser"
+                },
+                {
+                    "name": "hours"
+                }
+            ],
+            [
+                {
+                    "name": "checkIn"
+                },
+                {
+                    "name": "checkOut"
+                }
+            ],
+            [
+                {
+                    "name": "isLate"
+                },
+                {
+                    "name": "autoClosed"
+                }
+            ],
+            [
+                {
+                    "name": "ipAddress"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "note"
+                }
+            ]
+        ]
+    }
+]

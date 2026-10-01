@@ -1,0 +1,24 @@
+{
+    "filterList": [
+        "__APPEND__",
+        {
+            "name": "needsHuman"
+        }
+    ],
+    "menu": {
+        "detail": {
+            "buttons": [
+                "__APPEND__",
+                {
+                    "name": "sendAiDraft",
+                    "label": "Send AI draft",
+                    "style": "primary",
+                    "iconClass": "fas fa-paper-plane",
+                    "handler": "office-automation:handlers/email/send-ai-draft",
+                    "actionFunction": "send",
+                    "checkVisibilityFunction": "isVisible"
+                }
+            ]
+        }
+    }
+}

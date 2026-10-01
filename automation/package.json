@@ -1,0 +1,12 @@
+{
+  "name": "office-crm-automation",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.ts",
+    "test": "node --test \"test/*.test.ts\"",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": { "typescript": "^5.9.0", "@types/node": "^24.0.0" }
+}

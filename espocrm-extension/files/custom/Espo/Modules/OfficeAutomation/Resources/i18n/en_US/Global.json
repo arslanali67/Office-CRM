@@ -1,0 +1,24 @@
+{
+    "scopeNames": {
+        "Attendance": "Attendance",
+        "AutoReplyRule": "Auto Reply Rule",
+        "ProposalBrief": "Proposal Brief",
+        "Conversation": "Conversation",
+        "SocialMessage": "Social Message",
+        "DailyReport": "Daily Report"
+    },
+    "scopeNamesPlural": {
+        "Attendance": "Attendance",
+        "AutoReplyRule": "Auto Reply Rules",
+        "ProposalBrief": "Proposal Briefs",
+        "Conversation": "Conversations",
+        "SocialMessage": "Social Messages",
+        "DailyReport": "Daily Reports"
+    },
+    "dashlets": {
+        "AttendanceCheckIn": "Attendance: Check In / Out",
+        "AttendanceMonthly": "Attendance: Monthly hours",
+        "DailyReports": "Reports: daily numbers",
+        "AiControl": "AI control (pause switch)"
+    }
+}

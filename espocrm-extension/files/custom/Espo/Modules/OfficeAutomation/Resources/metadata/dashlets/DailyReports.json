@@ -1,0 +1,31 @@
+{
+    "view": "office-automation:views/dashlets/daily-reports",
+    "accessDataList": [
+        {
+            "isAdminOnly": true
+        }
+    ],
+    "options": {
+        "fields": {
+            "title": {
+                "type": "varchar",
+                "required": true
+            }
+        },
+        "defaults": {
+            "title": "Daily reports"
+        },
+        "layout": [
+            {
+                "rows": [
+                    [
+                        {
+                            "name": "title"
+                        },
+                        false
+                    ]
+                ]
+            }
+        ]
+    }
+}

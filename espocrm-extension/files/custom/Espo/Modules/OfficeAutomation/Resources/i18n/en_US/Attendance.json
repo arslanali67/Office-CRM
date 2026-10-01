@@ -1,0 +1,20 @@
+{
+    "labels": {
+        "Create Attendance": "Add attendance record"
+    },
+    "fields": {
+        "assignedUser": "User",
+        "checkIn": "Check in",
+        "checkOut": "Check out",
+        "hours": "Hours",
+        "ipAddress": "IP address",
+        "isLate": "Late",
+        "autoClosed": "Auto-closed",
+        "note": "Note"
+    },
+    "presetFilters": {
+        "open": "Checked in now",
+        "today": "Today",
+        "late": "Late arrivals"
+    }
+}

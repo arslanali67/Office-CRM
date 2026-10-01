@@ -1,0 +1,104 @@
+[
+    {
+        "label": "Overview",
+        "rows": [
+            [
+                {
+                    "name": "name"
+                },
+                {
+                    "name": "accountName"
+                }
+            ],
+            [
+                {
+                    "name": "emailAddress"
+                },
+                {
+                    "name": "phoneNumber"
+                }
+            ],
+            [
+                {
+                    "name": "title"
+                },
+                {
+                    "name": "website"
+                }
+            ],
+            [
+                {
+                    "name": "address"
+                },
+                false
+            ]
+        ]
+    },
+    {
+        "label": "Details",
+        "rows": [
+            [
+                {
+                    "name": "status"
+                },
+                {
+                    "name": "source"
+                }
+            ],
+            [
+                {
+                    "name": "opportunityAmount"
+                },
+                {
+                    "name": "campaign"
+                }
+            ],
+            [
+                {
+                    "name": "industry"
+                },
+                {
+                    "name": "industryText"
+                }
+            ],
+            [
+                {
+                    "name": "interestTopic"
+                },
+                false
+            ],
+            [
+                {
+                    "name": "description",
+                    "fullWidth": true
+                }
+            ]
+        ]
+    },
+    {
+        "label": "AI proposal",
+        "name": "aiProposal",
+        "rows": [
+            [
+                {
+                    "name": "proposalBrief"
+                },
+                {
+                    "name": "interestLevel"
+                }
+            ],
+            [
+                {
+                    "name": "aiProposalSubject",
+                    "fullWidth": true
+                }
+            ],
+            [
+                {
+                    "name": "aiProposalBody",
+                    "fullWidth": true
+                }
+            ]
+        ]
+    }
+]

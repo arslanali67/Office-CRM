@@ -1,0 +1,12 @@
+{
+    "controller": "controllers/record",
+    "iconClass": "fas fa-clock",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "filterList": [
+        "open",
+        "today",
+        "late"
+    ]
+}

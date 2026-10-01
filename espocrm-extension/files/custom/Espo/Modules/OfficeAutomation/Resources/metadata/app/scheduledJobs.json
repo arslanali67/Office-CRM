@@ -1,0 +1,18 @@
+{
+    "OverdueTaskAlert": {
+        "name": "Overdue task alert",
+        "jobClassName": "Espo\\Modules\\OfficeAutomation\\Jobs\\OverdueTaskAlert"
+    },
+    "AutoCloseAttendance": {
+        "name": "Auto-close forgotten attendance shifts",
+        "jobClassName": "Espo\\Modules\\OfficeAutomation\\Jobs\\AutoCloseAttendance"
+    },
+    "CreateFollowUpTasks": {
+        "name": "Create follow-up tasks for unanswered emails",
+        "jobClassName": "Espo\\Modules\\OfficeAutomation\\Jobs\\CreateFollowUpTasks"
+    },
+    "SendDailySummary": {
+        "name": "Daily summary email to the owner",
+        "jobClassName": "Espo\\Modules\\OfficeAutomation\\Jobs\\SendDailySummary"
+    }
+}

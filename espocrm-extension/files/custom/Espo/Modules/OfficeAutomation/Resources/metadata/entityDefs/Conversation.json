@@ -1,0 +1,119 @@
+{
+    "fields": {
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "name": {
+            "type": "varchar",
+            "readOnly": true,
+            "required": false
+        },
+        "channel": {
+            "type": "enum",
+            "options": [
+                "facebook",
+                "instagram"
+            ],
+            "required": true
+        },
+        "customerId": {
+            "type": "varchar",
+            "maxLength": 64,
+            "required": true
+        },
+        "customerName": {
+            "type": "varchar",
+            "maxLength": 150
+        },
+        "contact": {
+            "type": "link"
+        },
+        "lastMessageAt": {
+            "type": "datetime"
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "open",
+                "needs_human",
+                "closed"
+            ],
+            "default": "open",
+            "style": {
+                "needs_human": "warning",
+                "closed": "default"
+            }
+        },
+        "assignedUser": {
+            "type": "link",
+            "view": "views/fields/assigned-user"
+        },
+        "windowExpiresAt": {
+            "type": "datetime"
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "contact": {
+            "type": "belongsTo",
+            "entity": "Contact"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "messages": {
+            "type": "hasMany",
+            "entity": "SocialMessage",
+            "foreign": "conversation",
+            "layoutRelationshipsDisabled": true
+        }
+    },
+    "collection": {
+        "orderBy": "lastMessageAt",
+        "order": "desc"
+    },
+    "indexes": {
+        "channelCustomer": {
+            "unique": true,
+            "columns": [
+                "channel",
+                "customerId",
+                "deleted"
+            ]
+        },
+        "assignedUser": {
+            "columns": [
+                "assignedUserId",
+                "deleted"
+            ]
+        },
+        "status": {
+            "columns": [
+                "status"
+            ]
+        }
+    }
+}

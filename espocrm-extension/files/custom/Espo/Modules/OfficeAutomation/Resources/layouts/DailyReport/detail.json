@@ -1,0 +1,120 @@
+[
+    {
+        "label": "Tasks",
+        "rows": [
+            [
+                {
+                    "name": "date"
+                },
+                {
+                    "name": "computedAt"
+                }
+            ],
+            [
+                {
+                    "name": "tasksOpen"
+                },
+                {
+                    "name": "tasksOverdue"
+                }
+            ],
+            [
+                {
+                    "name": "overdueRate"
+                },
+                {
+                    "name": "tasksCompleted"
+                }
+            ],
+            [
+                {
+                    "name": "tasksCompletedOnTime"
+                },
+                {
+                    "name": "onTimeRate"
+                }
+            ]
+        ]
+    },
+    {
+        "label": "Attendance",
+        "rows": [
+            [
+                {
+                    "name": "attendanceHours"
+                },
+                {
+                    "name": "lateArrivals"
+                }
+            ]
+        ]
+    },
+    {
+        "label": "Messages",
+        "rows": [
+            [
+                {
+                    "name": "emailsIn"
+                },
+                {
+                    "name": "facebookIn"
+                }
+            ],
+            [
+                {
+                    "name": "instagramIn"
+                },
+                {
+                    "name": "avgResponseMinutes"
+                }
+            ],
+            [
+                {
+                    "name": "aiAutoReplied"
+                },
+                {
+                    "name": "aiHandled"
+                }
+            ],
+            [
+                {
+                    "name": "aiAutomationRate"
+                },
+                false
+            ]
+        ]
+    },
+    {
+        "label": "Campaigns (totals)",
+        "rows": [
+            [
+                {
+                    "name": "campaignSent"
+                },
+                {
+                    "name": "campaignOpened"
+                }
+            ],
+            [
+                {
+                    "name": "campaignBounced"
+                },
+                {
+                    "name": "campaignOptedOut"
+                }
+            ]
+        ]
+    },
+    {
+        "label": "Per employee",
+        "rows": [
+            [
+                {
+                    "name": "details",
+                    "fullWidth": true,
+                    "readOnly": true
+                }
+            ]
+        ]
+    }
+]

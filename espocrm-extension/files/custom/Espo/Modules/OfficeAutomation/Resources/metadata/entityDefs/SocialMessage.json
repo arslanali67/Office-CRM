@@ -1,0 +1,141 @@
+{
+    "fields": {
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "name": {
+            "type": "varchar",
+            "readOnly": true,
+            "required": false
+        },
+        "conversation": {
+            "type": "link",
+            "required": true
+        },
+        "direction": {
+            "type": "enum",
+            "options": [
+                "in",
+                "out"
+            ],
+            "required": true
+        },
+        "text": {
+            "type": "text",
+            "required": true,
+            "rows": 4
+        },
+        "externalId": {
+            "type": "varchar",
+            "maxLength": 255
+        },
+        "aiCategory": {
+            "type": "enum",
+            "options": [
+                "",
+                "inquiry",
+                "pricing",
+                "booking",
+                "complaint",
+                "refund_legal",
+                "lead_reply",
+                "spam",
+                "other"
+            ]
+        },
+        "aiDraft": {
+            "type": "text",
+            "rows": 4
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "new",
+                "auto_replied",
+                "needs_human",
+                "sent",
+                "failed",
+                "ignored"
+            ],
+            "default": "new",
+            "style": {
+                "needs_human": "warning",
+                "auto_replied": "success",
+                "sent": "success",
+                "failed": "danger"
+            }
+        },
+        "error": {
+            "type": "varchar",
+            "maxLength": 255
+        },
+        "assignedUser": {
+            "type": "link",
+            "view": "views/fields/assigned-user"
+        }
+    },
+    "links": {
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "conversation": {
+            "type": "belongsTo",
+            "entity": "Conversation",
+            "foreign": "messages"
+        },
+        "assignedUser": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc"
+    },
+    "indexes": {
+        "externalId": {
+            "unique": true,
+            "columns": [
+                "externalId",
+                "deleted"
+            ]
+        },
+        "conversation": {
+            "columns": [
+                "conversationId",
+                "createdAt"
+            ]
+        },
+        "assignedUser": {
+            "columns": [
+                "assignedUserId",
+                "deleted"
+            ]
+        },
+        "status": {
+            "columns": [
+                "status"
+            ]
+        }
+    }
+}

@@ -1,0 +1,22 @@
+[
+    {
+        "name": "direction",
+        "width": 8
+    },
+    {
+        "name": "text",
+        "link": true
+    },
+    {
+        "name": "conversation",
+        "width": 20
+    },
+    {
+        "name": "status",
+        "width": 12
+    },
+    {
+        "name": "createdAt",
+        "width": 14
+    }
+]

@@ -1,0 +1,88 @@
+# EspoCRM 10 layout: only data/, custom/ and client/custom are mounted (see docs.espocrm.com Docker installation)
+x-healthcheck: &espo-health
+  test: ["CMD", "bin/command", "app-check"]
+  start_period: 20s
+  interval: 60s
+  timeout: 20s
+  retries: 3
+
+services:
+  mysql:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes: [mysql:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 10
+  espocrm:
+    image: espocrm/espocrm:${ESPOCRM_VERSION}
+    restart: unless-stopped
+    environment:
+      ESPOCRM_DATABASE_PLATFORM: Mysql
+      ESPOCRM_DATABASE_HOST: mysql
+      ESPOCRM_DATABASE_NAME: ${MYSQL_DATABASE}
+      ESPOCRM_DATABASE_USER: ${MYSQL_USER}
+      ESPOCRM_DATABASE_PASSWORD: ${MYSQL_PASSWORD}
+      ESPOCRM_ADMIN_USERNAME: ${ESPOCRM_ADMIN_USERNAME}
+      ESPOCRM_ADMIN_PASSWORD: ${ESPOCRM_ADMIN_PASSWORD}
+      ESPOCRM_SITE_URL: https://${CRM_DOMAIN}
+    volumes:
+      - espocrm-data:/var/www/html/data
+      - espocrm-custom:/var/www/html/custom
+      - espocrm-custom-client:/var/www/html/client/custom
+    depends_on:
+      mysql: { condition: service_healthy }
+    healthcheck: *espo-health
+  espocrm-daemon:
+    image: espocrm/espocrm:${ESPOCRM_VERSION}
+    restart: unless-stopped
+    entrypoint: docker-daemon.sh
+    volumes_from: [espocrm]
+    depends_on:
+      espocrm: { condition: service_healthy }
+  espocrm-websocket:
+    image: espocrm/espocrm:${ESPOCRM_VERSION}
+    restart: unless-stopped
+    entrypoint: docker-websocket.sh
+    environment:
+      ESPOCRM_CONFIG_USE_WEB_SOCKET: "true"
+      ESPOCRM_CONFIG_WEB_SOCKET_URL: wss://${CRM_DOMAIN}/ws
+      ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBSCRIBER_DSN: tcp://*:7777
+      ESPOCRM_CONFIG_WEB_SOCKET_ZERO_M_Q_SUBMISSION_DSN: tcp://espocrm-websocket:7777
+    volumes_from: [espocrm]
+    depends_on:
+      espocrm: { condition: service_healthy }
+  automation:
+    build: ./automation
+    restart: unless-stopped
+    environment:
+      ESPO_URL: http://espocrm
+      ESPO_API_KEY: ${ESPO_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      META_APP_SECRET: ${META_APP_SECRET}
+      META_PAGE_TOKEN: ${META_PAGE_TOKEN}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      WEBHOOK_SECRET_BRIEF: ${WEBHOOK_SECRET_BRIEF}
+      WEBHOOK_SECRET_SOCIAL: ${WEBHOOK_SECRET_SOCIAL}
+      META_VERIFY_TOKEN: ${META_VERIFY_TOKEN}
+      GRAPH_URL: ${GRAPH_URL:-https://graph.facebook.com/v21.0}
+      AI_MODE: ${AI_MODE:-}
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment: [CRM_DOMAIN]
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "caddy_data:/data"]
+
+volumes:
+  mysql:
+  espocrm-data:
+  espocrm-custom:
+  espocrm-custom-client:
+  caddy_data:

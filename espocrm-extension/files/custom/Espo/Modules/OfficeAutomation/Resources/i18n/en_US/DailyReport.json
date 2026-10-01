@@ -1,0 +1,29 @@
+{
+    "labels": {
+        "Create DailyReport": "Create report"
+    },
+    "fields": {
+        "date": "Date",
+        "computedAt": "Computed at",
+        "details": "Details (JSON)",
+        "tasksOpen": "Open tasks",
+        "tasksOverdue": "Overdue tasks",
+        "overdueRate": "Overdue rate %",
+        "tasksCompleted": "Tasks completed",
+        "tasksCompletedOnTime": "Completed on time",
+        "onTimeRate": "On-time rate %",
+        "attendanceHours": "Hours worked",
+        "lateArrivals": "Late arrivals",
+        "emailsIn": "Emails in",
+        "facebookIn": "Facebook DMs in",
+        "instagramIn": "Instagram DMs in",
+        "avgResponseMinutes": "Avg first response (min)",
+        "aiAutoReplied": "Auto-replied by AI",
+        "aiHandled": "Messages handled",
+        "aiAutomationRate": "AI automation rate %",
+        "campaignSent": "Campaign emails sent",
+        "campaignOpened": "Opened",
+        "campaignBounced": "Bounced",
+        "campaignOptedOut": "Opted out"
+    }
+}

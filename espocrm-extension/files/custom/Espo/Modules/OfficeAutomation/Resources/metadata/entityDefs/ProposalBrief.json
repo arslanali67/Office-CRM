@@ -1,0 +1,105 @@
+{
+    "fields": {
+        "name": {
+            "type": "varchar",
+            "required": true,
+            "maxLength": 150
+        },
+        "instructions": {
+            "type": "text",
+            "required": true,
+            "rows": 12
+        },
+        "targetList": {
+            "type": "link",
+            "required": true
+        },
+        "wordLimit": {
+            "type": "int",
+            "min": 30,
+            "max": 400,
+            "default": 140,
+            "required": true
+        },
+        "status": {
+            "type": "enum",
+            "options": [
+                "draft",
+                "generating",
+                "review",
+                "ready"
+            ],
+            "default": "draft",
+            "style": {
+                "generating": "warning",
+                "review": "primary",
+                "ready": "success"
+            }
+        },
+        "totalCount": {
+            "type": "int",
+            "default": 0
+        },
+        "generatedCount": {
+            "type": "int",
+            "default": 0
+        },
+        "failedCount": {
+            "type": "int",
+            "default": 0
+        },
+        "regenerate": {
+            "type": "bool",
+            "default": false,
+            "utility": true
+        },
+        "massEmail": {
+            "type": "link"
+        },
+        "createdAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "modifiedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "createdBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        },
+        "modifiedBy": {
+            "type": "link",
+            "readOnly": true,
+            "view": "views/fields/user"
+        }
+    },
+    "links": {
+        "targetList": {
+            "type": "belongsTo",
+            "entity": "TargetList"
+        },
+        "massEmail": {
+            "type": "belongsTo",
+            "entity": "MassEmail"
+        },
+        "leads": {
+            "type": "hasMany",
+            "entity": "Lead",
+            "foreign": "proposalBrief"
+        },
+        "createdBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        },
+        "modifiedBy": {
+            "type": "belongsTo",
+            "entity": "User"
+        }
+    },
+    "collection": {
+        "orderBy": "createdAt",
+        "order": "desc"
+    }
+}

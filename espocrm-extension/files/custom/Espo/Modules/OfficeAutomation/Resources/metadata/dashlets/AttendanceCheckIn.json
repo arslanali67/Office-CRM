@@ -1,0 +1,27 @@
+{
+    "view": "office-automation:views/dashlets/check-in",
+    "aclScope": "Attendance",
+    "options": {
+        "fields": {
+            "title": {
+                "type": "varchar",
+                "required": true
+            }
+        },
+        "defaults": {
+            "title": "Check In / Out"
+        },
+        "layout": [
+            {
+                "rows": [
+                    [
+                        {
+                            "name": "title"
+                        },
+                        false
+                    ]
+                ]
+            }
+        ]
+    }
+}

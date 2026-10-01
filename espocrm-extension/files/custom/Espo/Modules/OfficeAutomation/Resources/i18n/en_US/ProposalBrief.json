@@ -1,0 +1,37 @@
+{
+    "labels": {
+        "Create ProposalBrief": "Create proposal brief",
+        "Generate": "Generate",
+        "Regenerate": "Regenerate",
+        "Send test": "Send test"
+    },
+    "fields": {
+        "name": "Name",
+        "instructions": "Instructions for the AI",
+        "targetList": "Target list",
+        "wordLimit": "Word limit",
+        "status": "Status",
+        "totalCount": "Leads in list",
+        "generatedCount": "Proposals written",
+        "failedCount": "Failed",
+        "massEmail": "Mass email"
+    },
+    "links": {
+        "leads": "Leads"
+    },
+    "options": {
+        "status": {
+            "draft": "Draft",
+            "generating": "Generating",
+            "review": "Review",
+            "ready": "Ready"
+        }
+    },
+    "messages": {
+        "confirmGenerate": "Write a proposal for every lead in the list that has none yet?",
+        "confirmRegenerate": "Rewrite the proposal for EVERY lead in the list? Manual edits will be lost.",
+        "testPrompt": "Send a test proposal to which email address?",
+        "testSent": "Test email sent.",
+        "generationDone": "Proposals generated."
+    }
+}

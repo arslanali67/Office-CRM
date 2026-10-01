@@ -1,0 +1,33 @@
+{
+    "labels": {
+        "Create Conversation": "Create conversation",
+        "Chat": "Chat"
+    },
+    "fields": {
+        "channel": "Channel",
+        "customerId": "Customer ID",
+        "customerName": "Customer",
+        "contact": "Contact",
+        "lastMessageAt": "Last message",
+        "status": "Status",
+        "assignedUser": "Assigned to",
+        "windowExpiresAt": "Reply window ends"
+    },
+    "links": {
+        "messages": "Messages"
+    },
+    "options": {
+        "channel": {
+            "facebook": "Facebook",
+            "instagram": "Instagram"
+        },
+        "status": {
+            "open": "Open",
+            "needs_human": "Needs human",
+            "closed": "Closed"
+        }
+    },
+    "presetFilters": {
+        "needsHuman": "Needs human"
+    }
+}

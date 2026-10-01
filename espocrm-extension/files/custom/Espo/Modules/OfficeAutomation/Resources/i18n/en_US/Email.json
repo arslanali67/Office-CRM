@@ -1,0 +1,39 @@
+{
+    "labels": {
+        "Send AI draft": "Send AI draft",
+        "AI reply": "AI reply"
+    },
+    "fields": {
+        "aiCategory": "AI category",
+        "aiDraft": "AI draft reply",
+        "aiStatus": "AI status",
+        "followUpAt": "Follow up if no reply by"
+    },
+    "options": {
+        "aiCategory": {
+            "": "",
+            "inquiry": "Inquiry",
+            "pricing": "Pricing",
+            "booking": "Booking",
+            "complaint": "Complaint",
+            "refund_legal": "Refund / legal",
+            "lead_reply": "Lead reply",
+            "spam": "Spam",
+            "other": "Other"
+        },
+        "aiStatus": {
+            "": "",
+            "needs_human": "Needs human",
+            "auto_replied": "Auto-replied",
+            "sent": "Sent by human",
+            "ignored": "Ignored"
+        }
+    },
+    "presetFilters": {
+        "needsHuman": "Needs human"
+    },
+    "messages": {
+        "aiDraftSent": "Reply sent.",
+        "aiDraftConfirm": "Send this reply to {to}?"
+    }
+}

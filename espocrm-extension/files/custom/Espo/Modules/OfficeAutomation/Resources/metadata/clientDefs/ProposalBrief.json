@@ -1,0 +1,35 @@
+{
+    "controller": "controllers/record",
+    "iconClass": "fas fa-file-signature",
+    "menu": {
+        "detail": {
+            "buttons": [
+                {
+                    "name": "generateProposals",
+                    "label": "Generate",
+                    "style": "primary",
+                    "iconClass": "fas fa-wand-magic-sparkles",
+                    "handler": "office-automation:handlers/proposal-brief/actions",
+                    "actionFunction": "generate",
+                    "checkVisibilityFunction": "canGenerate"
+                },
+                {
+                    "name": "regenerateProposals",
+                    "label": "Regenerate",
+                    "iconClass": "fas fa-rotate",
+                    "handler": "office-automation:handlers/proposal-brief/actions",
+                    "actionFunction": "regenerate",
+                    "checkVisibilityFunction": "canRegenerate"
+                },
+                {
+                    "name": "sendTestProposal",
+                    "label": "Send test",
+                    "iconClass": "fas fa-paper-plane",
+                    "handler": "office-automation:handlers/proposal-brief/actions",
+                    "actionFunction": "sendTest",
+                    "checkVisibilityFunction": "canSendTest"
+                }
+            ]
+        }
+    }
+}

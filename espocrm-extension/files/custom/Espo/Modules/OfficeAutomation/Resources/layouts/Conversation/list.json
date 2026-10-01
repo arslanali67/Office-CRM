@@ -1,0 +1,26 @@
+[
+    {
+        "name": "name",
+        "link": true
+    },
+    {
+        "name": "status",
+        "width": 11
+    },
+    {
+        "name": "assignedUser",
+        "width": 14
+    },
+    {
+        "name": "lastMessageAt",
+        "width": 15
+    },
+    {
+        "name": "windowExpiresAt",
+        "width": 15
+    },
+    {
+        "name": "contact",
+        "width": 14
+    }
+]

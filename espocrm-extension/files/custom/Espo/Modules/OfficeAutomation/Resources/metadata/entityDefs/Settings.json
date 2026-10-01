@@ -1,0 +1,23 @@
+{
+    "fields": {
+        "attendanceAllowedIps": {
+            "type": "varchar"
+        },
+        "attendanceOfficeStart": {
+            "type": "varchar",
+            "default": "09:00"
+        },
+        "attendanceTrustProxy": {
+            "type": "bool",
+            "default": false
+        },
+        "aiDraftOnly": {
+            "type": "bool",
+            "default": true
+        },
+        "aiAutoReplyPaused": {
+            "type": "bool",
+            "default": false
+        }
+    }
+}

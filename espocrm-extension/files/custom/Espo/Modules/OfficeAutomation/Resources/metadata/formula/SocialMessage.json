@@ -1,0 +1,5 @@
+{
+    "beforeSaveScriptList": [
+        "name = string\\concatenate(direction, ': ', string\\substring(text, 0, 60));"
+    ]
+}

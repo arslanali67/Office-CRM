@@ -1,0 +1,23 @@
+[
+    {
+        "name": "assignedUser"
+    },
+    {
+        "name": "checkIn"
+    },
+    {
+        "name": "checkOut"
+    },
+    {
+        "name": "hours"
+    },
+    {
+        "name": "isLate"
+    },
+    {
+        "name": "autoClosed"
+    },
+    {
+        "name": "ipAddress"
+    }
+]

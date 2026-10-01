@@ -1,0 +1,5 @@
+{
+    "beforeSaveScriptList": [
+        "name = string\\concatenate(assignedUser.name, ' ', string\\substring(checkIn, 0, 10));\nifThenElse(checkOut != null, hours = number\\round(datetime\\diff(checkOut, checkIn, 'minutes') / 60, 2), hours = null);"
+    ]
+}

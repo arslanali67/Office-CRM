@@ -1,0 +1,17 @@
+{
+    "menu": {
+        "detail": {
+            "buttons": [
+                "__APPEND__",
+                {
+                    "name": "sendProposalPdf",
+                    "label": "Send proposal PDF",
+                    "iconClass": "fas fa-file-pdf",
+                    "handler": "office-automation:handlers/lead/send-proposal-pdf",
+                    "actionFunction": "send",
+                    "checkVisibilityFunction": "isVisible"
+                }
+            ]
+        }
+    }
+}

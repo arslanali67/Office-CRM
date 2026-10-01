@@ -1,0 +1,22 @@
+{
+    "controller": "controllers/record",
+    "iconClass": "fas fa-comments",
+    "boolFilterList": [
+        "onlyMy"
+    ],
+    "filterList": [
+        {
+            "name": "needsHuman"
+        }
+    ],
+    "bottomPanels": {
+        "detail": [
+            {
+                "name": "chat",
+                "label": "Chat",
+                "view": "office-automation:views/conversation/panels/chat",
+                "order": 1
+            }
+        ]
+    }
+}

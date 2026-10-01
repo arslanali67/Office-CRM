@@ -1,0 +1,47 @@
+[
+    {
+        "name": "date",
+        "link": true,
+        "width": 11
+    },
+    {
+        "name": "tasksOpen",
+        "width": 8
+    },
+    {
+        "name": "tasksOverdue",
+        "width": 8
+    },
+    {
+        "name": "overdueRate",
+        "width": 8
+    },
+    {
+        "name": "attendanceHours",
+        "width": 9
+    },
+    {
+        "name": "lateArrivals",
+        "width": 8
+    },
+    {
+        "name": "emailsIn",
+        "width": 7
+    },
+    {
+        "name": "facebookIn",
+        "width": 7
+    },
+    {
+        "name": "instagramIn",
+        "width": 7
+    },
+    {
+        "name": "avgResponseMinutes",
+        "width": 9
+    },
+    {
+        "name": "aiAutomationRate",
+        "width": 9
+    }
+]
