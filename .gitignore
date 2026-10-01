@@ -5,3 +5,5 @@ backups;*
 dist/
 *.log
 .DS_Store
+.deploy-state
+.deploy-env
