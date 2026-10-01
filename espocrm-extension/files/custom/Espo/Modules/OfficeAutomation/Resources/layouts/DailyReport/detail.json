@@ -81,6 +81,20 @@
                     "name": "aiAutomationRate"
                 },
                 false
+            ],
+            [
+                {
+                    "name": "draftsUsed"
+                },
+                {
+                    "name": "draftsEdited"
+                }
+            ],
+            [
+                {
+                    "name": "editedDraftRate"
+                },
+                false
             ]
         ]
     },

@@ -9,17 +9,17 @@ define('office-automation:views/dashlets/daily-reports', ['views/dashlets/abstra
                 <table class="table table-condensed">
                     <thead><tr>
                         <th>Day</th><th>Open tasks</th><th>Overdue %</th><th>On time %</th><th>Hours</th><th>Late</th>
-                        <th>Email</th><th>FB</th><th>IG</th><th>1st reply (min)</th><th>AI auto %</th>
+                        <th>Email</th><th>FB</th><th>IG</th><th>1st reply (min)</th><th>AI auto %</th><th>Edited %</th>
                     </tr></thead>
                     <tbody>
                     {{#each list}}
                         <tr>
                             <td><a href="#DailyReport/view/{{id}}">{{date}}</a></td><td>{{tasksOpen}}</td><td>{{overdueRate}}</td><td>{{onTimeRate}}</td>
                             <td>{{attendanceHours}}</td><td>{{lateArrivals}}</td><td>{{emailsIn}}</td><td>{{facebookIn}}</td><td>{{instagramIn}}</td>
-                            <td>{{avgResponseMinutes}}</td><td>{{aiAutomationRate}}</td>
+                            <td>{{avgResponseMinutes}}</td><td>{{aiAutomationRate}}</td><td>{{editedDraftRate}}</td>
                         </tr>
                     {{else}}
-                        <tr><td colspan="11" class="text-muted">No reports yet. They are written every night.</td></tr>
+                        <tr><td colspan="12" class="text-muted">No reports yet. They are written every night.</td></tr>
                     {{/each}}
                     </tbody>
                 </table>

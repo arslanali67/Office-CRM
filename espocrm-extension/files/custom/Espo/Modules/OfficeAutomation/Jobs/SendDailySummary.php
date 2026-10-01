@@ -68,6 +68,7 @@ class SendDailySummary implements JobDataLess
             sprintf('  Emails: %d, Facebook DMs: %d, Instagram DMs: %d', $n('emailsIn'), $n('facebookIn'), $n('instagramIn')),
             sprintf('  Average first response: %.1f min', $n('avgResponseMinutes')),
             sprintf('  AI answered on its own: %d of %d (%.1f%%)', $n('aiAutoReplied'), $n('aiHandled'), $n('aiAutomationRate')),
+            sprintf('  AI drafts sent by a person: %d, of which edited: %d (%.1f%%)', $n('draftsUsed'), $n('draftsEdited'), $n('editedDraftRate')),
             '',
             'CAMPAIGNS (all time)',
             sprintf('  Sent: %d, opened: %d, bounced: %d, opted out: %d', $n('campaignSent'), $n('campaignOpened'), $n('campaignBounced'), $n('campaignOptedOut')),

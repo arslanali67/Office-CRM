@@ -82,3 +82,21 @@ test('campaign totals and an empty day do not break', () => {
   assert.deepEqual([f.campaignSent, f.campaignOpened, f.campaignBounced, f.campaignOptedOut], [15, 4, 1, 0]);
   assert.deepEqual([f.tasksOpen, f.overdueRate, f.avgResponseMinutes, f.aiAutomationRate], [0, 0, 0, 0]);
 });
+
+test('edited-draft rate: drafts a person sent, and how many were changed', () => {
+  const raw = empty();
+  raw.emails = [
+    { id: 'a', status: 'Archived', from: 'c1@x.com', dateSent: '2026-10-01 10:00:00', createdAt: '2026-10-01 10:00:00', aiStatus: 'sent', aiDraftOriginal: 'hi', aiEdited: false },
+    { id: 'b', status: 'Archived', from: 'c2@x.com', dateSent: '2026-10-01 11:00:00', createdAt: '2026-10-01 11:00:00', aiStatus: 'sent', aiDraftOriginal: 'hi', aiEdited: true },
+    { id: 'c', status: 'Archived', from: 'c3@x.com', dateSent: '2026-10-01 12:00:00', createdAt: '2026-10-01 12:00:00', aiStatus: 'sent' },                         // person wrote their own: not a draft
+    { id: 'd', status: 'Archived', from: 'c4@x.com', dateSent: '2026-10-01 13:00:00', createdAt: '2026-10-01 13:00:00', aiStatus: 'auto_replied', aiDraftOriginal: 'x' }, // AI sent it: not a person
+  ];
+  raw.messages = [
+    { conversationId: 'c1', direction: 'out', createdAt: '2026-10-01 09:00:00', status: 'sent', aiDraftUsed: true, aiEdited: true },
+    { conversationId: 'c1', direction: 'out', createdAt: '2026-10-01 09:30:00', status: 'sent', aiDraftUsed: false },
+    { conversationId: 'c1', direction: 'out', createdAt: '2026-09-30 09:00:00', status: 'sent', aiDraftUsed: true, aiEdited: false }, // other day
+  ];
+  const f = buildReport('2026-10-01', T, raw).fields;
+  assert.deepEqual([f.draftsUsed, f.draftsEdited, f.editedDraftRate], [3, 2, 66.7]);
+  assert.equal(buildReport('2026-10-01', T, empty()).fields.editedDraftRate, 0);
+});

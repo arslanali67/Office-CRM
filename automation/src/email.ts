@@ -99,7 +99,7 @@ export class EmailProcessor {
 
     const d = decide(result, rules, 'email', settings.aiDraftOnly !== false || settings.aiAutoReplyPaused === true);
     // Safe default first: if we crash before sending, a person sees the draft and nothing is ever sent twice.
-    await this.espo.put(`Email/${id}`, { aiCategory: result.category, aiDraft: result.reply, aiStatus: d.send ? 'needs_human' : d.aiStatus });
+    await this.espo.put(`Email/${id}`, { aiCategory: result.category, aiDraft: result.reply, aiDraftOriginal: result.reply, aiStatus: d.send ? 'needs_human' : d.aiStatus });
     this.log({ event: 'classified', id, category: result.category, confident: result.confident, aiStatus: d.aiStatus, reason: result.reason });
 
     if (!d.send) return;

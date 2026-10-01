@@ -28,10 +28,12 @@ Source of truth for scope is `PROJECT.md`. This file is the practical runbook fo
 - [ ] Seed test: send the proposal Mass Email to ~20 internal Gmail/Outlook addresses: it must land in the Inbox, not spam.
 - [ ] Unsubscribe link works; a replied lead is not in the next follow-up.
 
+**AI accuracy check (plan M3 acceptance)**: `docker compose exec -T automation node src/eval-cli.ts emails - < my-100-emails.csv` must say PASS (>= 90% correct, 0 invented prices, 0 dangerous mistakes). After the first campaign draft: `docker compose exec -T automation node src/eval-cli.ts proposals "<brief name>" 30`, then read the 5 samples it prints. The inputs are listed in `docs/JOINT-TEST-INPUTS.md`.
+
 ## 2. AI rollout (M6.1: owner decision)
 
 1. **Weeks 1-2: draft-only** (the default). The AI writes drafts, people send every reply. Watch the "Needs human" lists and the daily summary email.
-2. Review the **edited-draft ratio** informally: if staff keep rewriting a category, keep it human.
+2. Watch the **edited-draft rate** (Daily reports panel and the daily summary email; target under 10%): if staff keep rewriting a category, keep it human.
 3. Decide which categories may be automatic (PDF Appendix B). Open **Auto Reply Rules** and tick *Send automatically* only for those (Inquiry, Pricing, Booking by default; Complaint, Refund/legal, Lead reply and Other are never automatic, whatever the rule says).
 4. On the owner dashboard, panel **AI control**: press **End draft-only trial**. Automatic replies are now on for the ticked categories.
 5. Anything goes wrong: press **Pause all AI auto-replies**. It takes effect immediately for email and Instagram/Facebook. Messages keep being stored and classified; people answer them.

@@ -61,6 +61,13 @@ class AiReplyService
         // null user: send through the group account, not a personal one.
         $this->sendService->send($reply, null);
 
+        // KPI "AI replies corrected by a human": a person sent a reply that differs from what the AI first wrote.
+        $original = (string) $orig->get('aiDraftOriginal');
+        if (!$this->user->isApi() && $original !== '') {
+            $norm = fn (string $s) => preg_replace('/\s+/', ' ', trim($s));
+            $orig->set('aiEdited', $norm($text) !== $norm($original));
+        }
+
         $orig->set('aiStatus', $this->user->isApi() ? 'auto_replied' : 'sent');
         $this->entityManager->saveEntity($orig);
 

@@ -132,8 +132,12 @@ async function claudeClassifyAndDraft(msg: Incoming, kb: KbArticle[], cfg: AiCon
   return validate({ ...draft, category });
 }
 
-export async function classifyAndDraft(msg: Incoming, kb: KbArticle[], cfg = defaultAiConfig()): Promise<AiResult> {
+/** The model's answer as it is, before the invented-price guard (used by the accuracy check to see what the guard catches). */
+export async function classifyAndDraftUnguarded(msg: Incoming, kb: KbArticle[], cfg = defaultAiConfig()): Promise<AiResult> {
   const useStub = cfg.mode === 'stub' || !cfg.apiKey;
-  const result = useStub ? stubClassifyAndDraft(msg, kb) : await claudeClassifyAndDraft(msg, kb, cfg);
-  return guardPrices(result, kb);
+  return useStub ? stubClassifyAndDraft(msg, kb) : await claudeClassifyAndDraft(msg, kb, cfg);
+}
+
+export async function classifyAndDraft(msg: Incoming, kb: KbArticle[], cfg = defaultAiConfig()): Promise<AiResult> {
+  return guardPrices(await classifyAndDraftUnguarded(msg, kb, cfg), kb);
 }

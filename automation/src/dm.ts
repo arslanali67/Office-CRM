@@ -114,7 +114,13 @@ export class DmProcessor {
     }
     try {
       const sentMid = await this.meta.sendText(conv.customerId, m.text);
-      await this.espo.put(`SocialMessage/${messageId}`, { status: 'sent', externalId: sentMid, error: null });
+      // KPI "AI replies corrected by a human": the person started from the AI draft; did they change it?
+      let aiEdited: boolean | undefined;
+      if (m.aiDraftUsed) {
+        const original = (await this.espo.list('SocialMessage', { ...eq('conversationId', conv.id, 0), ...eq('direction', 'in', 1), orderBy: 'createdAt', order: 'desc', maxSize: '5', select: 'aiDraft' })).find((x: any) => x.aiDraft)?.aiDraft;
+        if (original) aiEdited = original.replace(/\s+/g, ' ').trim() !== String(m.text).replace(/\s+/g, ' ').trim();
+      }
+      await this.espo.put(`SocialMessage/${messageId}`, { status: 'sent', externalId: sentMid, error: null, ...(aiEdited === undefined ? {} : { aiEdited }) });
       await this.espo.put(`Conversation/${conv.id}`, { status: 'open' });
       // The customer's waiting messages are now answered by a person.
       const waiting = await this.espo.list('SocialMessage', { ...eq('conversationId', conv.id, 0), ...eq('status', 'needs_human', 1), select: 'id' });

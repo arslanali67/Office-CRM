@@ -1,0 +1,17 @@
+subject,body,expected_category
+Package price,"Hello, how much does the Website + SEO Starter package cost?",pricing
+Cost question,"Hi, what is the price for your social media management?",pricing
+What do you offer,"Good morning, what services do you offer for small businesses?",inquiry
+Your services,"Do you provide SEO as well as website design? I would like some information.",inquiry
+Opening hours,"What are your opening hours? Are you open on Saturdays?",inquiry
+Book a call,"I would like to book an appointment for Friday to discuss a website.",booking
+Reserve a slot,"Can we schedule a call next week, Tuesday afternoon?",booking
+Damaged work,"The website you delivered is broken and I am very disappointed. This is unacceptable.",complaint
+Terrible service,"I complained twice already and nobody answered. Terrible service, I am angry.",complaint
+Money back,"I want my money back for the last invoice, please refund it today.",refund_legal
+Legal action,"If you do not refund me I will talk to my lawyer and take legal action.",refund_legal
+Re: your proposal,"Thanks for your proposal, we are interested in your offer. Let's talk.",lead_reply
+You won,"You are a lottery winner! Click here to claim your crypto prize. Unsubscribe",spam
+Cheap pills,"Winner! Cheap viagra, click here to claim.",spam
+Hello,"zzz qqq",other
+Partnership,"We are a design agency and wonder whether you want to partner with us.",other

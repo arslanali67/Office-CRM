@@ -41,6 +41,16 @@
         "followUpAt": {
             "type": "datetime",
             "isCustom": true
+        },
+        "aiDraftOriginal": {
+            "type": "text",
+            "rows": 4,
+            "readOnly": false,
+            "isCustom": true
+        },
+        "aiEdited": {
+            "type": "bool",
+            "isCustom": true
         }
     },
     "indexes": {

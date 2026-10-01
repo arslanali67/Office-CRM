@@ -104,6 +104,19 @@
             "type": "float",
             "default": 0,
             "decimalPlaces": 1
+        },
+        "draftsUsed": {
+            "type": "int",
+            "default": 0
+        },
+        "draftsEdited": {
+            "type": "int",
+            "default": 0
+        },
+        "editedDraftRate": {
+            "type": "float",
+            "default": 0,
+            "decimalPlaces": 1
         }
     },
     "links": {},

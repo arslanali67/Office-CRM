@@ -87,6 +87,12 @@
         "assignedUser": {
             "type": "link",
             "view": "views/fields/assigned-user"
+        },
+        "aiDraftUsed": {
+            "type": "bool"
+        },
+        "aiEdited": {
+            "type": "bool"
         }
     },
     "links": {

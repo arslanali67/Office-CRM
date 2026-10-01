@@ -35,6 +35,7 @@ define('office-automation:views/conversation/panels/chat', ['views/record/panels
         messages: [],
         conversation: null,
         typed: '',
+        usedDraft: false,
         error: '',
         signature: '',
 
@@ -67,12 +68,16 @@ define('office-automation:views/conversation/panels/chat', ['views/record/panels
 
             this.events['input textarea[data-name="chatText"]'] = e => {
                 this.typed = e.currentTarget.value;
+                if (!this.typed) {
+                    this.usedDraft = false;
+                }
             };
             this.addActionHandler('sendChat', () => this.send());
             this.addActionHandler('useDraft', () => {
                 const last = [...this.messages].reverse().find(m => m.direction === 'in' && m.aiDraft);
 
                 this.typed = last ? last.aiDraft : '';
+                this.usedDraft = !!last;
                 this.$el.find('textarea[data-name="chatText"]').val(this.typed).focus();
             });
 
@@ -121,7 +126,7 @@ define('office-automation:views/conversation/panels/chat', ['views/record/panels
             }
 
             try {
-                await Espo.Ajax.postRequest('SocialMessage', {conversationId: this.model.id, direction: 'out', text: text, status: 'new'});
+                await Espo.Ajax.postRequest('SocialMessage', {conversationId: this.model.id, direction: 'out', text: text, status: 'new', aiDraftUsed: this.usedDraft});
             } catch (xhr) {
                 this.error = (xhr && xhr.getResponseHeader && xhr.getResponseHeader('X-Status-Reason')) || 'Could not send.';
                 xhr.errorIsHandled = true;
@@ -130,6 +135,7 @@ define('office-automation:views/conversation/panels/chat', ['views/record/panels
             }
 
             this.typed = '';
+            this.usedDraft = false;
             this.error = '';
             this.signature = '';
             await this.load();

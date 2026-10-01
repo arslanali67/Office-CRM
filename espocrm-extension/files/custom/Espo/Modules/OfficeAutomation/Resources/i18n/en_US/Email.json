@@ -7,7 +7,9 @@
         "aiCategory": "AI category",
         "aiDraft": "AI draft reply",
         "aiStatus": "AI status",
-        "followUpAt": "Follow up if no reply by"
+        "followUpAt": "Follow up if no reply by",
+        "aiDraftOriginal": "AI draft (original)",
+        "aiEdited": "AI draft was edited"
     },
     "options": {
         "aiCategory": {

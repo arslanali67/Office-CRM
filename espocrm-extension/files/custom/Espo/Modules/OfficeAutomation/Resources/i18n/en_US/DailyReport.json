@@ -24,6 +24,9 @@
         "campaignSent": "Campaign emails sent",
         "campaignOpened": "Opened",
         "campaignBounced": "Bounced",
-        "campaignOptedOut": "Opted out"
+        "campaignOptedOut": "Opted out",
+        "draftsUsed": "AI drafts sent by a person",
+        "draftsEdited": "\u2026of which edited",
+        "editedDraftRate": "Edited-draft rate %"
     }
 }

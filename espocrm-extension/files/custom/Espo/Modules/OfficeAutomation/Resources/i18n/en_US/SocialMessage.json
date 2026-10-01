@@ -11,7 +11,9 @@
         "aiDraft": "AI draft reply",
         "status": "Status",
         "error": "Error",
-        "assignedUser": "Assigned to"
+        "assignedUser": "Assigned to",
+        "aiDraftUsed": "Started from the AI draft",
+        "aiEdited": "AI draft was edited"
     },
     "options": {
         "direction": {

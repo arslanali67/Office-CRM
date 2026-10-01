@@ -132,7 +132,8 @@ ok('sending the same draft twice is rejected', (await call(emp(1), 'POST', 'Emai
 
 // ---------- automation API user is minimal ----------
 ok('automation API user cannot modify or create users', (await call(automation, 'PUT', `User/${(await call(admin, 'GET', 'User?where[0][type]=equals&where[0][attribute]=userName&where[0][value]=emp1')).j.list[0].id}`, { lastName: 'x' })).s === 403 && (await call(automation, 'POST', 'User', { userName: 'x' })).s === 403);
-for (const p of ['Role', 'Attendance', 'Extension', 'Import', 'Campaign']) {
+ok('automation API user can read attendance and campaigns (reports) but not change them', (await call(automation, 'POST', 'Attendance', { checkIn: '2026-01-01 00:00:00' })).s === 403 && (await call(automation, 'POST', 'Campaign', { name: 'x' })).s === 403);
+for (const p of ['Role', 'Extension', 'Import']) {
   const s = (await call(automation, 'GET', p)).s; ok(`automation API user cannot read ${p}`, s === 403 || s === 404, String(s));
 }
 ok('automation API user can read emails + knowledge base', (await call(automation, 'GET', 'Email?maxSize=1')).s === 200 && (await call(automation, 'GET', 'KnowledgeBaseArticle?maxSize=1')).s === 200);

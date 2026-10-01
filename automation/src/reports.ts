@@ -28,8 +28,8 @@ export function dayRange(date: string, tz: string): { start: number; end: number
 export interface RawData {
   tasks: { assignedUserId?: string; assignedUserName?: string; status: string; dateEnd?: string | null; dateCompleted?: string | null }[];
   attendance: { assignedUserId?: string; assignedUserName?: string; checkIn: string; hours?: number | null; isLate?: boolean }[];
-  emails: { id: string; status: string; from?: string; dateSent?: string | null; createdAt: string; repliedId?: string | null; aiStatus?: string | null }[];
-  messages: { conversationId: string; direction: string; createdAt: string; status: string }[];
+  emails: { id: string; status: string; from?: string; dateSent?: string | null; createdAt: string; repliedId?: string | null; aiStatus?: string | null; aiDraftOriginal?: string | null; aiEdited?: boolean | null }[];
+  messages: { conversationId: string; direction: string; createdAt: string; status: string; aiDraftUsed?: boolean | null; aiEdited?: boolean | null }[];
   conversations: Record<string, string>; // id -> channel
   campaigns: { sentCount?: number; openedCount?: number; bouncedCount?: number; optedOutCount?: number }[];
   ownAddresses: Set<string>;
@@ -99,6 +99,13 @@ export function buildReport(date: string, tz: string, raw: RawData, now = Date.n
   const handled = [...inboundEmails.map(m => m.aiStatus), ...dmIn.map(m => m.status)].filter(s => s && HANDLED.has(s)) as string[];
   const auto = handled.filter(s => s === 'auto_replied').length;
 
+  // drafts a person sent (email: Send AI draft; DM: Use AI draft in the chat), and how many of them were changed first
+  const used = [
+    ...inboundEmails.filter(m => m.aiStatus === 'sent' && m.aiDraftOriginal).map(m => !!m.aiEdited),
+    ...raw.messages.filter(m => m.direction === 'out' && m.status === 'sent' && m.aiDraftUsed && inDay(ts(m.createdAt))).map(m => !!m.aiEdited),
+  ];
+  const edited = used.filter(Boolean).length;
+
   const sum = (k: 'sentCount' | 'openedCount' | 'bouncedCount' | 'optedOutCount') => raw.campaigns.reduce((n, c) => n + (c[k] ?? 0), 0);
 
   return {
@@ -107,6 +114,7 @@ export function buildReport(date: string, tz: string, raw: RawData, now = Date.n
       attendanceHours: round1(hours), lateArrivals: late, emailsIn: inboundEmails.length, facebookIn: channelCount('facebook'), instagramIn: channelCount('instagram'),
       avgResponseMinutes: waits.length ? round1(waits.reduce((a, b) => a + b, 0) / waits.length) : 0,
       aiAutoReplied: auto, aiHandled: handled.length, aiAutomationRate: pct(auto, handled.length),
+      draftsUsed: used.length, draftsEdited: edited, editedDraftRate: pct(edited, used.length),
       campaignSent: sum('sentCount'), campaignOpened: sum('openedCount'), campaignBounced: sum('bouncedCount'), campaignOptedOut: sum('optedOutCount'),
     },
     perEmployee: [...emp.values()].map(x => ({ ...x, hours: round1(x.hours) })).sort((a, b) => a.name.localeCompare(b.name)),
@@ -143,8 +151,8 @@ export async function computeReport(espo: Espo, date: string): Promise<ReturnTyp
   const [tasks, attendance, emails, messages, conversations, campaigns, own] = await Promise.all([
     everything(espo, 'Task', 'assignedUserId,assignedUserName,status,dateEnd,dateCompleted'),
     since(espo, 'Attendance', 'checkIn', start - 24 * 3600e3, 'assignedUserId,assignedUserName,hours,isLate'),
-    since(espo, 'Email', 'createdAt', start - 24 * 3600e3, 'status,dateSent,repliedId,aiStatus,fromAddress'),
-    since(espo, 'SocialMessage', 'createdAt', start - 24 * 3600e3, 'conversationId,direction,status'),
+    since(espo, 'Email', 'createdAt', start - 24 * 3600e3, 'status,dateSent,repliedId,aiStatus,fromAddress,aiDraftOriginal,aiEdited'),
+    since(espo, 'SocialMessage', 'createdAt', start - 24 * 3600e3, 'conversationId,direction,status,aiDraftUsed,aiEdited'),
     everything(espo, 'Conversation', 'channel'),
     everything(espo, 'Campaign', 'sentCount,openedCount,bouncedCount,optedOutCount'),
     espo.get<{ list: string[] }>('Email/action/ownAddresses'),
