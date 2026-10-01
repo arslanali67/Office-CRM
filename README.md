@@ -9,6 +9,18 @@ EspoCRM + our extension + a small Node automation service. The project plan, sco
 - `scripts/` setup (`setup-m1/m3/m4/m5/m6.mjs`, run in that order), tests (`test-m1..m6.mjs`), `import-leads.mjs`, `load-test.mjs`, `backup.sh`, `harden-server.sh`
 - `docs/` go-live and rollback, upgrade, owner and employee guides; `samples/` sample lead CSV
 
+## Deploy on a server (Ubuntu VPS)
+```
+sh scripts/harden-server.sh                       # once, as root: firewall, automatic updates, SSH keys only
+cp .env.example .env && nano .env                 # real domain, passwords, mailbox, keys (the script refuses placeholders)
+sh scripts/deploy.sh install                      # stack + extension + setup + nightly backup + checks
+sh scripts/deploy.sh add-employee <user> "<First>" "<Last>" <email>
+sh scripts/deploy.sh update                       # later: backup, new code/images, setup, checks
+sh scripts/deploy.sh rollback                     # back to before the last update
+sh scripts/deploy.sh check                        # PASS / WARN / FAIL report
+```
+Staging and production are the same commands with different `.env` files. `--local` rehearses on a dev machine, `--dry-run` shows the steps.
+
 ## Run locally
 ```
 cp .env.example .env            # then fill in test values (see PROJECT.md)

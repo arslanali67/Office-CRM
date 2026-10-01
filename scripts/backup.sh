@@ -17,7 +17,9 @@ DIR="${BACKUP_DIR:-./backups}"; TS=$(date +%F_%H%M)
 mkdir -p "$DIR"
 
 docker compose exec -T mysql mysqldump -u root -p"$MYSQL_ROOT_PASSWORD" --single-transaction "$MYSQL_DATABASE" | gzip > "$DIR/db_$TS.sql.gz"
-docker compose run --rm --no-deps -T -v "$(pwd)/$DIR:/backup" --entrypoint tar espocrm czf "/backup/files_$TS.tar.gz" -C /var/www/html data custom client/custom
+# streamed out of the running container (no extra container, works even if the compose network changed)
+docker compose exec -T espocrm tar czf - -C /var/www/html data custom client/custom > "$DIR/files_$TS.tar.gz"
+[ "$(wc -c < "$DIR/files_$TS.tar.gz")" -gt 1000 ] || { echo "backup FAILED: files archive is empty" >&2; rm -f "$DIR/files_$TS.tar.gz"; exit 1; }
 # an empty dump means mysqldump failed: never keep (or upload) it as if it were a backup
 [ "$(gzip -dc "$DIR/db_$TS.sql.gz" | wc -c)" -gt 1000 ] || { echo "backup FAILED: database dump is empty" >&2; rm -f "$DIR/db_$TS.sql.gz"; exit 1; }
 find "$DIR" -type f \( -name 'db_*' -o -name 'files_*' \) -mtime +14 -delete

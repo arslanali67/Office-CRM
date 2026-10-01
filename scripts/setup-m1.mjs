@@ -62,7 +62,8 @@ await api('PUT', 'Admin/fieldManager/Task/status', {
 // ---- Users (placeholders; owner = built-in admin) ----
 await api('PUT', 'User/' + (await find('User', { 'where[0][type]': 'equals', 'where[0][attribute]': 'userName', 'where[0][value]': 'admin' })).id, { firstName: 'Owner', lastName: '(Admin)' });
 const employees = [];
-for (const n of [1, 2]) {
+// Placeholder test employees; production sets SKIP_PLACEHOLDER_USERS=1 and adds real staff with scripts/add-employee.mjs.
+for (const n of process.env.SKIP_PLACEHOLDER_USERS ? [] : [1, 2]) {
   const u = await upsert('User', `emp${n}`, {
     userName: `emp${n}`, firstName: 'Employee', lastName: `${n}`, type: 'regular',
     emailAddress: `emp${n}@example.com`, password: process.env.EMPLOYEE_PASSWORD, passwordConfirm: process.env.EMPLOYEE_PASSWORD,
@@ -107,7 +108,7 @@ const empTpl = await tpl('Employee', [
 ]);
 const owner = await find('User', { 'where[0][type]': 'equals', 'where[0][attribute]': 'userName', 'where[0][value]': 'admin' });
 await api('POST', 'DashboardTemplate/action/deployToUsers', { id: ownerTpl.id, userIdList: [owner.id] });
-await api('POST', 'DashboardTemplate/action/deployToUsers', { id: empTpl.id, userIdList: empIds });
+if (empIds.length) await api('POST', 'DashboardTemplate/action/deployToUsers', { id: empTpl.id, userIdList: empIds });
 for (const id of empIds) await api('PUT', `Preferences/${id}`, { dashboardLocked: true });
 
 // ---- Overdue alert job (class shipped in the extension; see scripts/build-extension.sh) ----
@@ -119,4 +120,4 @@ await upsert('ScheduledJob', 'Auto-close forgotten attendance shifts', { name: '
 // Explicit list; ACL hides entries an employee has no access to. Users/Teams live under Administration.
 const tabList = ['Lead', 'Contact', 'Account', 'Email', 'Task', 'Calendar', 'Attendance', 'KnowledgeBaseArticle', 'AutoReplyRule', 'ProposalBrief', 'Conversation', 'DailyReport', 'Campaign', 'TargetList', 'EmailTemplate', 'Import'];
 await api('PUT', 'Settings', { tabList, assignmentEmailNotifications: true, assignmentEmailNotificationsEntityList: ['Task'], attendanceOfficeStart: process.env.ATTENDANCE_OFFICE_START ?? '09:00', attendanceAllowedIps: process.env.ATTENDANCE_ALLOWED_IPS ?? '', attendanceTrustProxy: process.env.ATTENDANCE_TRUST_PROXY === 'true', auth2FA: true, auth2FAMethodList: ['Totp'], auth2FAForced: false, applicationName: process.env.APP_NAME ?? 'Office CRM' });
-console.log('M1 setup done. Employees:', employees.map(u => u.userName).join(', '));
+console.log('M1 setup done. Employees:', employees.map(u => u.userName).join(', ') || '(none)');

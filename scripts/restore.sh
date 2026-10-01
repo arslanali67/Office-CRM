@@ -33,7 +33,9 @@ echo "database restored into '$DB': $TABLES tables"
 
 if [ "${RESTORE_FILES:-1}" = 1 ]; then
   [ -s "$FILES" ] || { echo "missing $FILES" >&2; exit 1; }
-  docker compose run --rm --no-deps -T -v "$(pwd)/$DIR:/backup" --entrypoint tar espocrm xzf "/backup/files_$TS.tar.gz" -C /var/www/html
+  docker compose up -d espocrm
+  docker compose exec -T espocrm tar xzf - -C /var/www/html < "$FILES"
+  docker compose exec -T espocrm chown -R www-data:www-data /var/www/html/data /var/www/html/custom /var/www/html/client/custom
   docker compose up -d
   echo "files restored; CRM restarted"
 fi
