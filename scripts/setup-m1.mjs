@@ -75,7 +75,15 @@ const empIds = employees.map(u => u.id);
 
 // ---- Dashboard templates ----
 // Only panels whose entities exist today. Attendance/messages/campaign panels are added in M2/M3/M4/M5.
-const rec = (title, entityType, extra = {}) => ({ title, entityType, displayRecords: 10, ...extra });
+// A list panel shows nothing without a field layout: what each row of a list panel displays, per entity.
+const ROWS = {
+  Task: [[{ name: 'name', link: true }], [{ name: 'assignedUser' }, { name: 'status' }, { name: 'dateEnd' }]],
+  Attendance: [[{ name: 'assignedUser', link: true }], [{ name: 'checkIn' }, { name: 'checkOut' }, { name: 'hours' }, { name: 'isLate' }]],
+  Email: [[{ name: 'subject', link: true }], [{ name: 'from' }, { name: 'aiCategory' }, { name: 'aiStatus' }]],
+  Conversation: [[{ name: 'name', link: true }], [{ name: 'status' }, { name: 'assignedUser' }, { name: 'lastMessageAt' }]],
+  Lead: [[{ name: 'name', link: true }], [{ name: 'status' }, { name: 'interestLevel' }, { name: 'emailAddress' }]],
+};
+const rec = (title, entityType, extra = {}) => ({ title, entityType, displayRecords: 10, expandedLayout: { rows: ROWS[entityType] }, ...extra });
 const tpl = async (name, panels) => {
   const layout = [{ name: 'Home', columnCount: 4, layout: panels.map(([id, dashlet, o], i) => ({ id, name: dashlet, x: (i % 2) * 2, y: Math.floor(i / 2) * 4, width: 2, height: 4 })) }];
   const dashletsOptions = Object.fromEntries(panels.map(([id, , o]) => [id, o]));
