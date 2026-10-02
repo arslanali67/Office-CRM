@@ -1,6 +1,6 @@
 {
   "name": "Office Automation",
-  "version": "0.7.6",
+  "version": "0.8.0",
   "acceptableVersions": [">=10.0.0"],
   "php": [">=8.3"],
   "author": "Office CRM",

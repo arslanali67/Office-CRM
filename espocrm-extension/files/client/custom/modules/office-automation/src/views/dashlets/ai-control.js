@@ -27,15 +27,28 @@ define('office-automation:views/dashlets/ai-control', ['views/dashlets/abstract/
                         <button class="btn btn-default" data-action="startTrial">Back to draft-only</button>
                     {{/if}}
                 </p>
+                <hr style="margin: 8px 0">
+                <p>
+                    <strong>Assignment of new messages:</strong>
+                    {{#if autoAssign}}
+                        automatic (fewest waiting messages first{{#if onlyCheckedIn}}, only employees who are checked in{{/if}}).
+                        <button class="btn btn-default btn-xs" data-action="assignOff">Turn off</button>
+                    {{else}}
+                        manual (you assign each one).
+                        <button class="btn btn-default btn-xs" data-action="assignOn">Turn on automatic assignment</button>
+                    {{/if}}
+                </p>
                 <p class="text-muted small">Pausing affects email and Instagram/Facebook replies immediately. Customers' messages are still stored and classified.</p>
             </div>
         `,
 
         paused: false,
         draftOnly: true,
+        autoAssign: false,
+        onlyCheckedIn: true,
 
         data: function () {
-            return {paused: this.paused, draftOnly: this.draftOnly};
+            return {paused: this.paused, draftOnly: this.draftOnly, autoAssign: this.autoAssign, onlyCheckedIn: this.onlyCheckedIn};
         },
 
         setup: function () {
@@ -47,6 +60,8 @@ define('office-automation:views/dashlets/ai-control', ['views/dashlets/abstract/
                 () => this.save({aiDraftOnly: false})
             ));
             this.addActionHandler('startTrial', () => this.save({aiDraftOnly: true}));
+            this.addActionHandler('assignOn', () => this.save({autoAssign: true}));
+            this.addActionHandler('assignOff', () => this.save({autoAssign: false}));
             this.refresh();
         },
 
@@ -59,6 +74,8 @@ define('office-automation:views/dashlets/ai-control', ['views/dashlets/abstract/
 
             this.paused = s.aiAutoReplyPaused === true;
             this.draftOnly = s.aiDraftOnly !== false;
+            this.autoAssign = s.autoAssign === true;
+            this.onlyCheckedIn = s.autoAssignOnlyCheckedIn !== false;
             await this.reRender();
         },
 

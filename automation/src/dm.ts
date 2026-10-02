@@ -3,6 +3,7 @@ import type { Espo } from './espo.ts';
 import { classifyAndDraft, type AiResult, type KbArticle } from './ai.ts';
 import { decide, type Rule } from './email.ts';
 import { windowOpen, toEspoDate, type InboundDm, type Meta } from './meta.ts';
+import { Assigner } from './assign.ts';
 
 const DAY = 24 * 3600e3;
 const stripHtml = (s: string) => s.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -11,11 +12,13 @@ const eq = (attribute: string, value: string, i: number) => ({ [`where[${i}][typ
 export class DmProcessor {
   private espo: Espo;
   private meta: Meta;
+  private assigner: Assigner;
   private log: (o: object) => void;
 
   constructor(espo: Espo, meta: Meta, log: (o: object) => void = o => console.log(JSON.stringify(o))) {
     this.espo = espo;
     this.meta = meta;
+    this.assigner = new Assigner(espo, log);
     this.log = log;
   }
 
@@ -74,6 +77,7 @@ export class DmProcessor {
           .filter((m: any) => Date.parse(String(m.createdAt).replace(' ', 'T') + 'Z') > since).length;
         const d = decide(result, rules, dm.channel, settings.aiDraftOnly !== false || settings.aiAutoReplyPaused === true, recent); // paused = emergency switch
         await this.finish(conv, message, dm, result, d);
+        if (d.aiStatus === 'needs_human') await this.assign(conv, result.category);
         return;
       } catch (e) {
         this.log({ event: 'dm_ai_error', mid: dm.mid, error: String(e) });
@@ -81,6 +85,14 @@ export class DmProcessor {
     }
     await this.espo.put(`SocialMessage/${message.id}`, { aiCategory: result.category, aiDraft: result.reply, status: 'needs_human' });
     await this.espo.put(`Conversation/${conv.id}`, { status: 'needs_human' });
+    await this.assign(conv, result.category);
+  }
+
+  /** Optional automatic assignment; an existing assignee is kept (the same person keeps talking to the same customer). */
+  private async assign(conv: any, category: string): Promise<void> {
+    if (conv.assignedUserId) return;
+    const who = await this.assigner.next(category).catch(() => undefined);
+    if (who) await this.espo.put(`Conversation/${conv.id}`, { assignedUserId: who }).catch(e => this.log({ event: 'assign_error', id: conv.id, error: String(e) }));
   }
 
   private async history(conversationId: string, exceptId: string): Promise<string[]> {

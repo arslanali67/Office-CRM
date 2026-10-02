@@ -102,6 +102,7 @@ const ownerTpl = await tpl('Owner', [
   })],
   ['oa', 'Records', rec('Needs human (Instagram / Facebook)', 'Conversation', { primaryFilter: 'needsHuman', sortBy: 'lastMessageAt', sortDirection: 'desc' })],
   ['ob', 'AiControl', { title: 'AI control' }],
+  ['od', 'SecurityStatus', { title: 'Security status' }],
   ['oc', 'DailyReports', { title: 'Daily reports' }],
   ['o3', 'Stream', { title: 'Activity stream' }],
   ['o4', 'Calendar', { title: 'Calendar' }],

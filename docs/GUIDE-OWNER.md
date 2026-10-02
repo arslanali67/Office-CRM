@@ -11,6 +11,8 @@
 - *Knowledge Base* is what the AI is allowed to say (services, prices, hours, policies). **Keep it accurate**: the AI never invents a price that is not there.
 - *Auto Reply Rules*: which categories may be answered automatically (per channel). Complaints, refunds/legal, lead replies and "other" always stay with people.
 - **AI control** panel: **Pause all AI auto-replies** (emergency, instant), **End draft-only trial** (turn automation on after the first two weeks), **Back to draft-only**.
+- **Automatic assignment** (AI control panel): *Assign new messages automatically* hands each new email / Instagram / Facebook message that needs a person to the employee with the fewest open ones (by default only employees who are checked in). Complaints, refunds, legal and spam stay with you; a lead's reply goes to that lead's owner. Off by default.
+- **Security status** panel: green/yellow checks for 2FA, passwords, HTTPS, API key blocked at the proxy, automation running, and the current AI mode.
 
 **Lead campaigns** (about 30 minutes for any number of leads)
 1. Prepare a CSV like `samples/leads-template.csv` (email, first_name, last_name, company, industry, city, interest, notes). Import: `node scripts/import-leads.mjs file.csv "Name of list"` (or Import in the menu); you get created / duplicates / invalid rows.

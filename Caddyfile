@@ -28,6 +28,18 @@
 		reverse_proxy automation:3000
 	}
 
+	# Pages Meta requires for App Review (rendered from site/ by deploy.sh)
+	handle /privacy {
+		root * /srv/site
+		rewrite * /privacy.html
+		file_server
+	}
+	handle /data-deletion {
+		root * /srv/site
+		rewrite * /data-deletion.html
+		file_server
+	}
+
 	# EspoCRM live updates
 	handle /ws {
 		reverse_proxy espocrm-websocket:8080

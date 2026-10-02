@@ -1,0 +1,31 @@
+{
+    "view": "office-automation:views/dashlets/security-status",
+    "accessDataList": [
+        {
+            "isAdminOnly": true
+        }
+    ],
+    "options": {
+        "fields": {
+            "title": {
+                "type": "varchar",
+                "required": true
+            }
+        },
+        "defaults": {
+            "title": "Security status"
+        },
+        "layout": [
+            {
+                "rows": [
+                    [
+                        {
+                            "name": "title"
+                        },
+                        false
+                    ]
+                ]
+            }
+        ]
+    }
+}

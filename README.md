@@ -8,6 +8,7 @@ EspoCRM + our extension + a small Node automation service. The project plan, sco
 - `automation/` Node service (TypeScript run directly, no build): email AI, DMs, proposals, nightly reports; `npm test` = `node --test "test/*.test.ts"`
 - `scripts/` setup (`setup-m1/m3/m4/m5/m6.mjs`, run in that order), tests (`test-m1..m6.mjs`), `import-leads.mjs`, `load-test.mjs`, `backup.sh`, `harden-server.sh`
 - `docs/JOINT-TEST-INPUTS.md` everything the owner must provide for the joint test
+- `docs/META-APP-REVIEW.md` Meta App Review kit; `site/` privacy and data-deletion page templates (rendered by `deploy.sh`)
 - `docs/` go-live and rollback, upgrade, owner and employee guides; `samples/` sample lead CSV
 
 ## Deploy on a server (Ubuntu VPS)

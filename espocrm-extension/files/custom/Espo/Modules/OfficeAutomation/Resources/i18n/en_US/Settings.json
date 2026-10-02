@@ -4,6 +4,8 @@
         "attendanceOfficeStart": "Attendance: office start time (HH:MM)",
         "attendanceTrustProxy": "Attendance: trust X-Forwarded-For",
         "aiDraftOnly": "AI: draft-only mode (a person must approve every reply)",
-        "aiAutoReplyPaused": "AI: emergency pause of all automatic replies"
+        "aiAutoReplyPaused": "AI: emergency pause of all automatic replies",
+        "autoAssign": "Assign new emails and conversations to employees automatically",
+        "autoAssignOnlyCheckedIn": "\u2026only to employees who are checked in"
     }
 }

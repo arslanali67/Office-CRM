@@ -19,6 +19,7 @@
         "AttendanceCheckIn": "Attendance: Check In / Out",
         "AttendanceMonthly": "Attendance: Monthly hours",
         "DailyReports": "Reports: daily numbers",
-        "AiControl": "AI control (pause switch)"
+        "AiControl": "AI control (pause switch)",
+        "SecurityStatus": "Security status"
     }
 }

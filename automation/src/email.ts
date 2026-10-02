@@ -2,6 +2,7 @@
 import type { Espo } from './espo.ts';
 import { classifyAndDraft, type AiResult, type Category, type Incoming, type KbArticle } from './ai.ts';
 import { classifyInterest } from './lead-ai.ts';
+import { Assigner } from './assign.ts';
 
 export interface Rule { category: string; channel: string; autoSend: boolean }
 
@@ -44,10 +45,12 @@ export class EmailProcessor {
   private ownCache: { at: number; set: Set<string> } = { at: 0, set: new Set() };
 
   private espo: Espo;
+  private assigner: Assigner;
   private log: (o: object) => void;
 
   constructor(espo: Espo, log: (o: object) => void = o => console.log(JSON.stringify(o))) {
     this.espo = espo;
+    this.assigner = new Assigner(espo, log);
     this.log = log;
   }
 
@@ -104,6 +107,11 @@ export class EmailProcessor {
     const recent = (await this.espo.list('Email', { 'where[0][type]': 'equals', 'where[0][attribute]': 'from', 'where[0][value]': email.from, 'where[1][type]': 'equals', 'where[1][attribute]': 'aiStatus', 'where[1][value]': 'auto_replied', select: 'createdAt', maxSize: '20' }).catch(() => null))
       ?.filter((e: any) => Date.parse(String(e.createdAt).replace(' ', 'T') + 'Z') > since).length ?? AUTO_REPLY_DAILY_CAP; // lookup failed: fail safe, a person decides
     const d = decide(result, rules, 'email', settings.aiDraftOnly !== false || settings.aiAutoReplyPaused === true, recent);
+    // Optional: hand the message to the employee with the fewest waiting ones (owner keeps complaints/refunds/spam).
+    if (d.aiStatus === 'needs_human' && !email.assignedUserId) {
+      const who = await this.assigner.next(result.category).catch(() => undefined);
+      if (who) await this.espo.put(`Email/${id}`, { assignedUserId: who }).catch(e => this.log({ event: 'assign_error', id, error: String(e) }));
+    }
     // Safe default first: if we crash before sending, a person sees the draft and nothing is ever sent twice.
     await this.espo.put(`Email/${id}`, { aiCategory: result.category, aiDraft: result.reply, aiDraftOriginal: result.reply, aiStatus: d.send ? 'needs_human' : d.aiStatus });
     this.log({ event: 'classified', id, category: result.category, confident: result.confident, aiStatus: d.aiStatus, reason: result.reason });
@@ -133,6 +141,10 @@ export class EmailProcessor {
     const ooo = interest === 'out_of_office'; // an auto-reply is not a real answer: keep following up
     await this.espo.put(`Email/${email.id}`, { aiCategory: 'lead_reply', aiStatus: ooo ? 'ignored' : 'needs_human' });
     const status = interest === 'interested' ? 'In Process' : interest === 'not_interested' ? 'Dead' : undefined;
+    // A reply from a lead goes to the lead's owner (when automatic assignment is on).
+    if (lead.assignedUserId && !ooo && !email.assignedUserId && (await this.espo.get('Settings')).autoAssign) {
+      await this.espo.put(`Email/${email.id}`, { assignedUserId: lead.assignedUserId }).catch(e => this.log({ event: 'assign_error', id: email.id, error: String(e) }));
+    }
     await this.espo.put(`Lead/${lead.id}`, { interestLevel: interest, ...(status ? { status } : {}) });
     if (!ooo) {
       await this.espo.post(`Lead/${lead.id}/targetLists`, { id: await this.exclusionList() })

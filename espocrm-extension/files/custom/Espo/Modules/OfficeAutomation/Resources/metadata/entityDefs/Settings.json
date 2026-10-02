@@ -21,6 +21,14 @@
         "aiAutoReplyPaused": {
             "type": "bool",
             "default": false
+        },
+        "autoAssign": {
+            "type": "bool",
+            "default": false
+        },
+        "autoAssignOnlyCheckedIn": {
+            "type": "bool",
+            "default": true
         }
     }
 }

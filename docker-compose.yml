@@ -84,7 +84,7 @@ services:
     restart: unless-stopped
     ports: ["80:80", "443:443"]
     environment: [CRM_DOMAIN]
-    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "caddy_data:/data"]
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro", "./site-rendered:/srv/site:ro", "caddy_data:/data"]
 
 networks:
   default:
