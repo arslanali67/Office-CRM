@@ -34,6 +34,7 @@ Everything below is something only the owner can get or decide. Nothing here is 
 - Create an account at console.anthropic.com with the company card, then **set a monthly spend limit** (Settings > Limits; USD 50 is plenty to start).
 - Create an API key. Value for `.env`: `ANTHROPIC_API_KEY=...` (leave `AI_MODE` empty).
 - Expected cost: about USD 20-50 a month at launch (PDF section 12).
+- **Optional: Google Gemini instead of Claude** (approved 2026-10-06): create a key at aistudio.google.com and put `AI_PROVIDER=gemini` and `GEMINI_API_KEY=...` in `.env` (leave `AI_MODE` empty; the Claude key is then not used). If a model name is retired, set `AI_CLASSIFY_MODEL` / `AI_DRAFT_MODEL`. The free tier may be used by Google to improve its products: use it with the invented test data only, and a paid key for real customers.
 
 ## 4. Company mailbox (shared inbox + sending)
 - A dedicated address such as `support@<your-domain>` (not a personal inbox).

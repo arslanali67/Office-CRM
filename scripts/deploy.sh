@@ -53,7 +53,8 @@ preflight() {
   [ "$LOCAL" = 1 ] && { [ "$FAIL" = 0 ] || exit 1; return 0; }
   [ ${#ESPOCRM_ADMIN_PASSWORD} -ge 12 ] || bad "ESPOCRM_ADMIN_PASSWORD needs at least 12 characters"
   case "${CRM_DOMAIN:-}" in ""|localhost|*example.com) bad "CRM_DOMAIN must be the real domain (crm.<your-domain>)";; esac
-  for v in ANTHROPIC_API_KEY MAILBOX_ADDRESS MAILBOX_IMAP_HOST MAILBOX_USER MAILBOX_PASSWORD MAILBOX_SMTP_HOST OWNER_EMAIL COMPANY_NAME COMPANY_ADDRESS; do bad_value $v && bad "$v is not set (needed for production)"; done
+  [ "${AI_PROVIDER:-}" = gemini ] && AIKEY=GEMINI_API_KEY || AIKEY=ANTHROPIC_API_KEY
+  for v in $AIKEY MAILBOX_ADDRESS MAILBOX_IMAP_HOST MAILBOX_USER MAILBOX_PASSWORD MAILBOX_SMTP_HOST OWNER_EMAIL COMPANY_NAME COMPANY_ADDRESS; do bad_value $v && bad "$v is not set (needed for production)"; done
   [ "${AI_MODE:-}" != stub ] || bad "AI_MODE=stub is for local testing only: leave it empty in production"
   case "${MAILBOX_IMAP_HOST:-}" in greenmail*) bad "MAILBOX_IMAP_HOST still points at the local test mail server";; esac
   [ "${ATTENDANCE_TRUST_PROXY:-}" = true ] || bad "ATTENDANCE_TRUST_PROXY must be true behind Caddy (otherwise attendance records the proxy's address)"

@@ -1,6 +1,6 @@
 // AI for leads (M4): personalised proposals, and interest tagging of replies to them.
-// Same pattern as ai.ts: real Claude when a key is set, keyword stub otherwise; everything validated before use.
-import { AMOUNT, claude, defaultAiConfig, digits, parseAiJson, unknownContacts, type AiConfig, type KbArticle } from './ai.ts';
+// Same pattern as ai.ts: real AI (Claude or Gemini) when a key is set, keyword stub otherwise; everything validated before use.
+import { AMOUNT, llm, defaultAiConfig, digits, parseAiJson, unknownContacts, type AiConfig, type KbArticle } from './ai.ts';
 
 export interface Lead {
   id: string; firstName?: string | null; lastName?: string | null; name?: string | null; accountName?: string | null;
@@ -71,7 +71,7 @@ async function claudeProposal(lead: Lead, brief: Brief, kb: KbArticle[], cfg: Ai
     { text: `Knowledge base:\n${kb.map(a => `## ${a.name}\n${a.text}`).join('\n\n')}\n\nOwner instructions:\n${brief.instructions}\nWord limit: ${brief.wordLimit}`, cache: true },
   ];
   const user = `Lead (empty fields omitted):\n${JSON.stringify(nonEmpty(lead))}${problem ? `\n\nYour previous attempt was rejected: ${problem}. Fix it.` : ''}`;
-  const raw = parseAiJson(await claude(cfg, cfg.draftModel, system, user, 700));
+  const raw = parseAiJson(await llm(cfg, cfg.draftModel, system, user, 700));
   if (typeof raw.subject !== 'string' || typeof raw.body !== 'string') throw new Error('proposal JSON needs subject and body');
   return { subject: raw.subject.trim(), body: raw.body.trim() };
 }
@@ -103,7 +103,7 @@ export function stubInterest(text: string): Interest {
 export async function classifyInterest(text: string, cfg = defaultAiConfig()): Promise<Interest> {
   if (cfg.mode === 'stub' || !cfg.apiKey) return stubInterest(text);
   const system = [{ text: "Classify a lead's reply to a sales proposal email. Output ONLY JSON: {\"interest\": \"interested|not_interested|question|out_of_office\"}." }];
-  const out = parseAiJson(await claude(cfg, cfg.classifyModel, system, text.slice(0, 4000), 50));
+  const out = parseAiJson(await llm(cfg, cfg.classifyModel, system, text.slice(0, 4000), 50));
   if (!INTERESTS.includes(out.interest as Interest)) throw new Error(`Bad interest: ${String(out.interest)}`);
   return out.interest as Interest;
 }

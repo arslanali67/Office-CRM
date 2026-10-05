@@ -1,6 +1,6 @@
 // Classification + draft for incoming messages.
-// Real mode: Claude Haiku 4.5 classifies, Sonnet 5 drafts, both with the knowledge base prompt-cached.
-// Stub mode (no ANTHROPIC_API_KEY, or AI_MODE=stub): keyword rules, for local testing only.
+// Real mode: Claude (default) or Gemini (AI_PROVIDER=gemini); a small model classifies, a bigger one drafts, with the knowledge base in the prompt.
+// Stub mode (no API key for the chosen provider, or AI_MODE=stub): keyword rules, for local testing only.
 
 export const CATEGORIES = ['inquiry', 'pricing', 'booking', 'complaint', 'refund_legal', 'lead_reply', 'spam', 'other'] as const;
 export type Category = (typeof CATEGORIES)[number];
@@ -13,14 +13,21 @@ export interface AiResult {
 }
 export interface KbArticle { name: string; text: string }
 export interface Incoming { from: string; subject: string; body: string; history: string[] }
-export interface AiConfig { apiKey?: string; mode?: string; classifyModel: string; draftModel: string }
+export type Provider = 'claude' | 'gemini';
+/** apiKey is the key of the chosen provider; no key (or AI_MODE=stub) means the keyword stub. */
+export interface AiConfig { provider?: Provider; apiKey?: string; mode?: string; classifyModel: string; draftModel: string }
 
-export const defaultAiConfig = (env = process.env): AiConfig => ({
-  apiKey: env.ANTHROPIC_API_KEY || undefined,
-  mode: env.AI_MODE,
-  classifyModel: env.AI_CLASSIFY_MODEL ?? 'claude-haiku-4-5-20251001',
-  draftModel: env.AI_DRAFT_MODEL ?? 'claude-sonnet-5-5',
-});
+export const defaultAiConfig = (env = process.env): AiConfig => {
+  const gemini = env.AI_PROVIDER === 'gemini';
+  return {
+    provider: gemini ? 'gemini' : 'claude',
+    apiKey: (gemini ? env.GEMINI_API_KEY : env.ANTHROPIC_API_KEY) || undefined,
+    mode: env.AI_MODE,
+    // ponytail: Gemini model names change often; set AI_CLASSIFY_MODEL / AI_DRAFT_MODEL if these are retired.
+    classifyModel: env.AI_CLASSIFY_MODEL || (gemini ? 'gemini-2.5-flash-lite' : 'claude-haiku-4-5-20251001'),
+    draftModel: env.AI_DRAFT_MODEL || (gemini ? 'gemini-2.5-flash' : 'claude-sonnet-5-5'),
+  };
+};
 
 // ---------- validation (nothing from the model is trusted before this) ----------
 
@@ -116,7 +123,7 @@ export function stubClassifyAndDraft(msg: Incoming, kb: KbArticle[]): AiResult {
   };
 }
 
-// ---------- real (Claude) ----------
+// ---------- real (Claude or Gemini) ----------
 
 const RULES = `You answer customer messages for a small company.
 Rules: use ONLY facts from the knowledge base; never invent prices, dates, discounts or promises.
@@ -126,7 +133,11 @@ Never share internal information, employee details or other customers' data.
 Complaints and refund/legal requests are never confident.
 Output ONLY one JSON object, no other text.`;
 
-export async function claude(cfg: AiConfig, model: string, system: { text: string; cache?: boolean }[], user: string, maxTokens: number): Promise<string> {
+export async function llm(cfg: AiConfig, model: string, system: { text: string; cache?: boolean }[], user: string, maxTokens: number): Promise<string> {
+  return cfg.provider === 'gemini' ? gemini(cfg, model, system, user, maxTokens) : claude(cfg, model, system, user, maxTokens);
+}
+
+async function claude(cfg: AiConfig, model: string, system: { text: string; cache?: boolean }[], user: string, maxTokens: number): Promise<string> {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: { 'x-api-key': cfg.apiKey!, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
@@ -143,6 +154,27 @@ export async function claude(cfg: AiConfig, model: string, system: { text: strin
   return data.content.filter(c => c.type === 'text').map(c => c.text).join('');
 }
 
+// Every call in this service expects one JSON object back, so Gemini is asked for JSON directly. Caching is automatic on Gemini (no flag).
+// maxOutputTokens has headroom because some Gemini models count their internal "thinking" tokens against it.
+async function gemini(cfg: AiConfig, model: string, system: { text: string }[], user: string, maxTokens: number): Promise<string> {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: 'POST',
+    headers: { 'x-goog-api-key': cfg.apiKey!, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: system.map(s => ({ text: s.text })) },
+      contents: [{ role: 'user', parts: [{ text: user }] }],
+      generationConfig: { maxOutputTokens: maxTokens + 2048, responseMimeType: 'application/json' },
+    }),
+    signal: AbortSignal.timeout(60_000),
+  });
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  const data = (await res.json()) as { candidates?: { finishReason?: string; content?: { parts?: { text?: string }[] } }[]; promptFeedback?: { blockReason?: string } };
+  const c = data.candidates?.[0];
+  const text = (c?.content?.parts ?? []).map(p => p.text ?? '').join('');
+  if (!text) throw new Error(`Gemini returned no text (${c?.finishReason ?? data.promptFeedback?.blockReason ?? 'unknown reason'})`);
+  return text;
+}
+
 const fmt = (m: Incoming) =>
   `${m.history.length ? `Earlier in the thread:\n${m.history.join('\n---\n')}\n\n` : ''}From: ${m.from}\nSubject: ${m.subject}\n\n${m.body}`;
 
@@ -151,14 +183,14 @@ async function claudeClassifyAndDraft(msg: Incoming, kb: KbArticle[], cfg: AiCon
   const system = [{ text: RULES }, { text: `Knowledge base:\n${kbText}`, cache: true }];
   const user = fmt(msg);
 
-  const cls = parseAiJson(await claude(cfg, cfg.classifyModel, system,
+  const cls = parseAiJson(await llm(cfg, cfg.classifyModel, system,
     `Classify this message. Categories: ${CATEGORIES.join(', ')}. ` +
     `Return {"category": "...", "reason": "one short sentence"}.\n\n${user}`, 200));
   const category = cls.category as Category;
   if (!CATEGORIES.includes(category)) throw new Error(`Bad category: ${String(cls.category)}`);
   if (category === 'spam') return { category, confident: true, reply: '', reason: String(cls.reason ?? '') };
 
-  const draft = parseAiJson(await claude(cfg, cfg.draftModel, system,
+  const draft = parseAiJson(await llm(cfg, cfg.draftModel, system,
     `The message was classified as "${category}". Write the reply. ` +
     `Return {"category": "${category}", "confident": true|false, "reply": "...", "reason": "one short sentence"}.\n\n${user}`, 1000));
   return validate({ ...draft, category });

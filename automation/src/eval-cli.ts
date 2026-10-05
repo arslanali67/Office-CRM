@@ -19,8 +19,8 @@ const espo = new Espo(process.env.ESPO_URL ?? 'http://localhost:8080', process.e
 const cfg = defaultAiConfig();
 const stub = cfg.mode === 'stub' || !cfg.apiKey;
 const banner = () => console.log(stub
-  ? 'AI: STUB (keyword rules). These numbers say nothing about Claude: set ANTHROPIC_API_KEY and leave AI_MODE empty.\n'
-  : `AI: Claude (${cfg.classifyModel} classifies, ${cfg.draftModel} drafts)\n`);
+  ? 'AI: STUB (keyword rules). These numbers say nothing about the real AI: set ANTHROPIC_API_KEY (or AI_PROVIDER=gemini and GEMINI_API_KEY) and leave AI_MODE empty.\n'
+  : `AI: ${cfg.provider === 'gemini' ? 'Gemini' : 'Claude'} (${cfg.classifyModel} classifies, ${cfg.draftModel} drafts)\n`);
 
 async function knowledgeBase(): Promise<KbArticle[]> {
   const list = await espo.list('KnowledgeBaseArticle', { 'where[0][type]': 'equals', 'where[0][attribute]': 'status', 'where[0][value]': 'Published', select: 'name,bodyPlain,body' });
