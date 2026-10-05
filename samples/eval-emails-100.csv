@@ -1,0 +1,101 @@
+subject,body,expected_category
+Services,"Hi, what kind of services does Brightline Digital offer? I run a small bakery.",inquiry
+Do you build online stores?,"Hello, I sell handmade candles and want to sell them online. Is that something you do?",inquiry
+Question about SEO,Can you explain what your local SEO plan includes? I'm not sure if it's right for a dental clinic.,inquiry
+Opening hours,"Hi there, what time do you close on Fridays? I wanted to call you.",inquiry
+Working with non-US clients,We're a salon based in Toronto. Do you work with businesses outside the US?,inquiry
+Can I edit the site myself?,"If you build my website, will I be able to change the text and photos myself, or do I have to ask you every time?",inquiry
+Hosting,"Do you also host the websites you make, or do I need to find my own hosting?",inquiry
+Redesign,Our current website is from 2015 and looks terrible on phones. Do you do redesigns?,inquiry
+Social media,Which social media platforms do you manage for clients?,inquiry
+Logo only,"Do you design logos on their own, without a website?",inquiry
+Domain ownership,"If I order a site from you, who owns the domain name afterwards?",inquiry
+WordPress?,Are your websites built on WordPress? My previous developer used something custom and it was a nightmare.,inquiry
+Do you run ads,Do you also manage Google Ads or Facebook ads for clients?,inquiry
+Mobile app,"Hello, can you build a mobile app for my restaurant? Or only websites?",inquiry
+How long does SEO take,Roughly how long until I see results from local SEO? A friend said a few weeks.,inquiry
+Guarantee,Can you guarantee that my site will be number one on Google?,inquiry
+Moving my site,I have a site with another company and want to move it to you. Is that possible?,inquiry
+Backups,What happens if my website breaks or gets hacked? Do you keep backups?,inquiry
+Contract,"Do you sign a contract for projects, or is it just an email agreement?",inquiry
+What do you need from me,"If I decide to go ahead, what do I need to prepare? I only have a logo and a few photos.",inquiry
+Examples,Could you send some examples of websites you have built for similar businesses?,inquiry
+Languages,"Do you build websites in other languages, for example French?",inquiry
+Starter package,"Hello, how much does the Website + SEO Starter package cost and what is included?",pricing
+Price list,Could you please send me your price list?,pricing
+E-commerce price,What would an online store with about 60 products cost?,pricing
+Monthly SEO,How much is the monthly local SEO plan? Is there a minimum period?,pricing
+Social media cost,What do you charge for managing Instagram and Facebook? We post about three times a week.,pricing
+Logo price,"How much does a logo cost, and how many revisions do I get?",pricing
+Care plan,What is the monthly price for website hosting and updates?,pricing
+Hourly rate,"If I need small extra changes after the site is done, what is your hourly rate?",pricing
+Payment terms,Do I have to pay everything upfront or can I pay in parts? And how much is the business website package?,pricing
+Quote,"Hi, we need a 10 page website for our consulting firm. Can you give me a quote?",pricing
+Cost?,how much,pricing
+Do you offer discounts,The Business Website package looks good but it is a bit above our budget. Do you offer any discounts?,pricing
+Price comparison,"Another agency quoted us USD 1,200 for a 5 page site. What is your price for something similar?",pricing
+Cuanto cuesta,"Hola, cuanto cuesta el paquete de sitio web con SEO? Gracias.",pricing
+Taxes,Are your prices including tax? I saw USD 799 on the Starter package.,pricing
+Budget,We have about 2000 to spend. What could we get for that?,pricing
+Growth plan,What is the difference in price between the Basic and Growth social media plans?,pricing
+Pricing for non-profit,We are a small charity. What would the cheapest option for a simple website be?,pricing
+Free call,I'd like to book the free 15 minute consultation. I'm free Tuesday or Thursday afternoon.,booking
+Schedule a call,Can we set up a video call next week to discuss a new website? Any day after 2pm works.,booking
+Appointment,"Hi, I would like to make an appointment to talk about my project. What times do you have on Monday?",booking
+Book consultation,Please book me for a consultation this Friday at 10am Eastern if possible.,booking
+Reschedule,I booked a call for Wednesday but something came up. Can we move it to Thursday at the same time?,booking
+Call this week?,"Hello, is anyone available for a quick call this week? I want to talk about SEO for my restaurant.",booking
+Free consultation,How do I book the free consultation you advertise? I'd like to do it tomorrow if possible.,booking
+Meeting request,We'd like to meet your team on a video call on the 15th to discuss redesigning our site. Is 11am OK?,booking
+Evening slot,Do you have any slots after 6pm? I work until 5 and would like to book a call.,booking
+Cancel my call,"I need to cancel the call we planned for tomorrow, sorry. I'll write again when I'm ready.",booking
+Consultation next month,"I'm travelling now, but could I book a call for the first week of next month?",booking
+Calendar,"Can I pick a time on your calendar online, or should I just email you the times?",booking
+Quick chat,Could we have a quick chat on Monday morning? I'd like to ask about the e-commerce package.,booking
+Book a meeting,Please schedule a meeting with someone who can explain the Business Website package. Thursday works for me.,booking
+Website is broken,The contact form on the website you built stopped working and I've lost customers because of it. This is really disappointing.,complaint
+No reply,I've emailed three times this month and nobody has replied. This is unacceptable service.,complaint
+Late delivery,You promised my site in 5 weeks and it's been 9. I'm very unhappy with how this was handled.,complaint
+Wrong colours,I asked for dark blue and you used bright green. I'm angry that my feedback was ignored.,complaint
+Rude staff,Your team member was rude to me on the phone yesterday. I expected better.,complaint
+Terrible,Terrible experience. The site looks nothing like the draft you showed me.,complaint
+Mistakes in the text,There are spelling mistakes all over my new website. How did this get approved? I'm really upset.,complaint
+Slow site,"My website takes ten seconds to load. I'm disappointed, this is not what I paid for.",complaint
+Posts went out wrong,Your social media team posted the wrong opening hours on our page. A customer showed up while we were closed. Not acceptable.,complaint
+Nobody told me,Nobody told me about the extra charge for stock photos. I feel misled and I'm not happy about it.,complaint
+Disappointed,I'm very disappointed with the quality of the logo concepts. They look like clip art.,complaint
+Still waiting,It has been three weeks since you said you'd fix the booking form. I'm frustrated and tired of waiting.,complaint
+Refund please,I would like a refund of the deposit I paid last month. The project never started.,refund_legal
+Money back,I want my money back. The site is not what we agreed. Please refund USD 750 today.,refund_legal
+Chargeback,If I don't get my deposit back this week I will file a chargeback with my bank.,refund_legal
+Lawyer,I have forwarded this matter to my lawyer. You will be hearing from them about breach of contract.,refund_legal
+Legal action,We intend to take legal action if the website is not delivered by Friday.,refund_legal
+Cancel and refund,Please cancel my order and send the refund to my card.,refund_legal
+GDPR request,Under GDPR I request you delete all personal data you hold about me and confirm in writing.,refund_legal
+Dispute,I am disputing the last invoice. I will report your company to the consumer protection agency if it isn't refunded.,refund_legal
+Re: Website proposal for your business,"Thanks for your proposal. We are interested in your offer, can we talk this week?",lead_reply
+Re: A better website for Lahore Retail,"Hi, thank you for reaching out with the proposal. The 10% discount sounds good. What are the next steps?",lead_reply
+Re: Offer for your clinic,"Hello, I read your email with the Starter package offer. Please tell me more about it.",lead_reply
+Re: Quick question about your website,"Thanks for the proposal, but we already have a web designer. No thanks.",lead_reply
+Re: Your website,Interested in your offer. Please call me on Thursday.,lead_reply
+Re: Free SEO audit,"Thanks for your email. We'd like to take you up on the offer you sent, who do I speak to?",lead_reply
+Re: Proposal,Thank you for your proposal. Please send me more details about what is included before I decide.,lead_reply
+Re: Offer,"We received your proposal, thanks! We are discussing it internally and will come back to you.",lead_reply
+YOU WON!!!,"Congratulations winner! You have been selected for a lottery prize of $1,000,000. Click here to claim.",spam
+Cheap pills,"Buy cheap viagra online, no prescription, click here to claim your discount.",spam
+Make money with crypto,Double your bitcoin in 24 hours. Guaranteed. Join our crypto group now.,spam
+Unsubscribe,Special offer for you! Limited time. To stop receiving these emails click unsubscribe.,spam
+SEO services 99$,We will put your website on page 1 of Google for only $99. Click here to claim your free report.,spam
+Dear beneficiary,I am a lawyer from Nigeria with an inheritance of $8.5 million for you. Reply with your bank details.,spam
+Verify your account,Your account is locked. Click here immediately to verify your password. Winner of our monthly draw!,spam
+Hot singles,"Meet singles in your area tonight, click here to claim your free membership.",spam
+Partnership,We are a photography studio and wonder whether you'd like to partner with us and refer clients to each other.,other
+Job application,"Hi, I'm a junior web developer looking for a position at your company. My CV is attached.",other
+Invoice from supplier,Please find attached our invoice for office supplies for the month of September.,other
+Press,I'm a journalist writing about small web agencies. Could I interview the owner for an article?,other
+Wrong address,"I think this email was meant for someone else, sorry to bother you.",other
+zzz,qqq zzz,other
+Out of office,I am out of the office until Monday with limited access to email.,other
+Thank you,Just wanted to say thank you for the great work on our site last year. Our customers love it.,other
+Guest post,Would you like to publish a guest article on your blog? We can provide it for free.,other
+Accounting software,"Hello, are you interested in a demo of our accounting software for small businesses?",other
