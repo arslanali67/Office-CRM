@@ -24,8 +24,8 @@ export const defaultAiConfig = (env = process.env): AiConfig => {
     apiKey: (gemini ? env.GEMINI_API_KEY : env.ANTHROPIC_API_KEY) || undefined,
     mode: env.AI_MODE,
     // ponytail: Gemini model names change often; set AI_CLASSIFY_MODEL / AI_DRAFT_MODEL if these are retired.
-    classifyModel: env.AI_CLASSIFY_MODEL || (gemini ? 'gemini-2.5-flash-lite' : 'claude-haiku-4-5-20251001'),
-    draftModel: env.AI_DRAFT_MODEL || (gemini ? 'gemini-2.5-flash' : 'claude-sonnet-5-5'),
+    classifyModel: env.AI_CLASSIFY_MODEL || (gemini ? 'gemini-3.5-flash-lite' : 'claude-haiku-4-5-20251001'),
+    draftModel: env.AI_DRAFT_MODEL || (gemini ? 'gemini-3.5-flash' : 'claude-sonnet-5-5'),
   };
 };
 
@@ -133,8 +133,19 @@ Never share internal information, employee details or other customers' data.
 Complaints and refund/legal requests are never confident.
 Output ONLY one JSON object, no other text.`;
 
+const TEMPORARY = /^(Gemini|Anthropic) (429|5\d\d)/; // rate limit or "high demand": worth another try
+export const retryDelayMs = { value: 2000 }; // tests set this to 0
+
 export async function llm(cfg: AiConfig, model: string, system: { text: string; cache?: boolean }[], user: string, maxTokens: number): Promise<string> {
-  return cfg.provider === 'gemini' ? gemini(cfg, model, system, user, maxTokens) : claude(cfg, model, system, user, maxTokens);
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await (cfg.provider === 'gemini' ? gemini(cfg, model, system, user, maxTokens) : claude(cfg, model, system, user, maxTokens));
+    } catch (e) {
+      const msg = String((e as Error).message);
+      if (attempt >= 4 || !TEMPORARY.test(msg) || /PerDay/.test(msg)) throw e; // a daily quota will not clear in a few seconds
+      await new Promise(r => setTimeout(r, retryDelayMs.value * attempt));
+    }
+  }
 }
 
 async function claude(cfg: AiConfig, model: string, system: { text: string; cache?: boolean }[], user: string, maxTokens: number): Promise<string> {
@@ -167,7 +178,7 @@ async function gemini(cfg: AiConfig, model: string, system: { text: string }[], 
     }),
     signal: AbortSignal.timeout(60_000),
   });
-  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${(await res.text()).slice(0, 1500)}`);
   const data = (await res.json()) as { candidates?: { finishReason?: string; content?: { parts?: { text?: string }[] } }[]; promptFeedback?: { blockReason?: string } };
   const c = data.candidates?.[0];
   const text = (c?.content?.parts ?? []).map(p => p.text ?? '').join('');

@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classifyAndDraft, defaultAiConfig, llm } from '../src/ai.ts';
+import { classifyAndDraft, defaultAiConfig, llm, retryDelayMs } from '../src/ai.ts';
+
+retryDelayMs.value = 0;
 
 const kb = [{ name: 'Pricing', text: 'Starter costs USD 799.' }];
 const msg = { from: 'a@b.test', subject: 'Price?', body: 'How much?', history: [] };
@@ -43,7 +45,9 @@ test('gemini: request has key in a header, system text, JSON mode; answer is rea
 
 test('gemini: errors and empty answers are reported, not swallowed', async () => {
   let f = fakeFetch(() => new Response('quota', { status: 429 }));
-  try { await assert.rejects(llm({ provider: 'gemini', apiKey: 'k', classifyModel: '', draftModel: '' }, 'm', [], 'x', 10), /Gemini 429/); } finally { f.restore(); }
+  try { await assert.rejects(llm({ provider: 'gemini', apiKey: 'k', classifyModel: '', draftModel: '' }, 'm', [], 'x', 10), /Gemini 429/); assert.equal(f.calls.length, 4, 'tried 4 times'); } finally { f.restore(); }
+  f = fakeFetch(() => new Response('bad key', { status: 400 }));
+  try { await assert.rejects(llm({ provider: 'gemini', apiKey: 'k', classifyModel: '', draftModel: '' }, 'm', [], 'x', 10), /Gemini 400/); assert.equal(f.calls.length, 1, 'a permanent error is not retried'); } finally { f.restore(); }
   f = fakeFetch(() => new Response(JSON.stringify({ candidates: [{ finishReason: 'SAFETY' }] }), { status: 200 }));
   try { await assert.rejects(llm({ provider: 'gemini', apiKey: 'k', classifyModel: '', draftModel: '' }, 'm', [], 'x', 10), /no text \(SAFETY\)/); } finally { f.restore(); }
 });
@@ -61,5 +65,22 @@ test('gemini end to end: classify + draft, and the invented-price guard still ap
   try {
     const r = await classifyAndDraft(msg, kb, cfg);
     assert.equal(r.confident, false, 'a price that is not in the knowledge base must go to a human');
+  } finally { f.restore(); }
+});
+
+test('a temporary "high demand" error is retried and then succeeds', async () => {
+  let n = 0;
+  const f = fakeFetch(() => (++n < 3 ? new Response('{"error":{"code":503}}', { status: 503 }) : gemOk('{"ok":true}')));
+  try {
+    assert.equal(await llm({ provider: 'gemini', apiKey: 'k', classifyModel: '', draftModel: '' }, 'm', [], 'x', 10), '{"ok":true}');
+    assert.equal(f.calls.length, 3);
+  } finally { f.restore(); }
+});
+
+test('a daily quota error is not retried', async () => {
+  const f = fakeFetch(() => new Response('{"error":{"code":429,"details":[{"quotaId":"GenerateRequestsPerDayPerProjectPerModel-FreeTier"}]}}', { status: 429 }));
+  try {
+    await assert.rejects(llm({ provider: 'gemini', apiKey: 'k', classifyModel: '', draftModel: '' }, 'm', [], 'x', 10), /Gemini 429/);
+    assert.equal(f.calls.length, 1);
   } finally { f.restore(); }
 });

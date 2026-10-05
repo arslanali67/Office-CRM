@@ -47,12 +47,14 @@ async function emails(file: string): Promise<boolean> {
   const kbText = kb.map(a => a.text).join('\n');
   console.log(`${rows.length} emails, knowledge base: ${kb.length} published articles\n`);
 
+  const failures: string[] = []; // calls that errored are counted wrong AND reported, so an outage or quota limit cannot pass for a score
   const cases = await pool(rows, 4, async r => {
-    const raw = await classifyAndDraftUnguarded({ from: r.from || 'customer@example.com', subject: r.subject, body: r.body, history: [] }, kb).catch(e => ({ category: 'other' as const, confident: false, reply: '', reason: String(e) }));
+    const raw = await classifyAndDraftUnguarded({ from: r.from || 'customer@example.com', subject: r.subject, body: r.body, history: [] }, kb).catch(e => { failures.push(String(e?.message ?? e)); return { category: 'other' as const, confident: false, reply: '', reason: String(e) }; });
     return { subject: r.subject || r.body.slice(0, 50), expected: r.expected_category, got: raw.category, confident: raw.confident, reply: raw.reply, guardedConfident: guardContacts(guardPrices(raw, kb), kb).confident } as Case;
   });
   const s = score(cases, kbText);
 
+  if (failures.length) console.log(`AI CALLS FAILED: ${failures.length} of ${rows.length}. The score below is NOT valid. First error: ${failures[0].replace(/\s+/g, ' ').slice(0, 300)}\n`);
   console.log(`Accuracy: ${s.correct}/${s.total} = ${(s.accuracy * 100).toFixed(1)}%   (target >= 90%)`);
   console.log('Per category:'); for (const [c, v] of Object.entries(s.perCategory)) console.log(`  ${c.padEnd(13)} ${v.correct}/${v.total}`);
   if (s.confusions.length) { console.log('\nWrong category:'); for (const c of s.confusions) console.log(`  [${c.expected} -> ${c.got}] ${c.subject}`); }
@@ -60,8 +62,9 @@ async function emails(file: string): Promise<boolean> {
   for (const c of s.inventedPrices) console.log(`  ${c.subject}: ${c.reply.replace(/\s+/g, ' ')}`);
   console.log(`Dangerous (complaint/refund/legal that could have been answered automatically): ${s.dangerous.length}   (target 0)`);
   for (const c of s.dangerous) console.log(`  [${c.expected} -> ${c.got}] ${c.subject}`);
-  console.log(`\n${s.pass ? 'PASS' : 'FAIL'}`);
-  return s.pass;
+  const pass = s.pass && failures.length === 0;
+  console.log(`\n${pass ? 'PASS' : 'FAIL'}`);
+  return pass;
 }
 
 async function proposals(briefName: string, n: number): Promise<boolean> {
