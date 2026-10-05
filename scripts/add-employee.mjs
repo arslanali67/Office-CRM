@@ -8,7 +8,7 @@ if (!userName || !firstName || !lastName || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e
   console.error('Usage: add-employee.mjs <userName> "<First name>" "<Last name>" <email>');
   process.exit(1);
 }
-const BASE = (process.env.BASE_URL ?? 'http://localhost:8080') + '/api/v1/';
+const BASE = (process.env.BASE_URL ?? `http://localhost:${process.env.ESPO_PORT ?? 8080}`) + '/api/v1/';
 const AUTH = 'Basic ' + Buffer.from(`admin:${process.env.ESPOCRM_ADMIN_PASSWORD}`).toString('base64');
 async function api(method, path, body) {
   const r = await fetch(BASE + path, { method, headers: { Authorization: AUTH, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });

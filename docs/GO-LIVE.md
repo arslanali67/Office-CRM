@@ -22,7 +22,7 @@ Source of truth for scope is `PROJECT.md`. This file is the practical runbook fo
 
 **Checks** (run on staging, then repeat the short list on production)
 - [ ] `node --env-file=.env scripts/test-m1.mjs`, `test-m2`, `test-m3`, `test-m4`, `test-m5`, `test-m6` (the local test servers are replaced by the real ones, so run only the tests that apply, or read them as a checklist).
-- [ ] Load test on staging: `node --env-file=.env scripts/load-test.mjs 1000 5000`.
+- [x] Load test on staging (done 2026-10-06, see PROJECT.md M6.5; repeat on the real server): `node --env-file=.env scripts/load-test.mjs 1000 5000`.
 - [ ] A real email to the company mailbox shows up in the CRM within 1-2 minutes with category and draft.
 - [ ] A real DM (team account, before App Review) appears within seconds; a reply from the chat panel reaches the phone.
 - [ ] Seed test: send the proposal Mass Email to ~20 internal Gmail/Outlook addresses: it must land in the Inbox, not spam.

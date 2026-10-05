@@ -2,7 +2,7 @@
 // Usage: node --env-file=.env scripts/setup-m5.mjs
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const BASE = (process.env.BASE_URL ?? 'http://localhost:8080') + '/api/v1/';
+const BASE = (process.env.BASE_URL ?? `http://localhost:${process.env.ESPO_PORT ?? 8080}`) + '/api/v1/';
 const AUTH = 'Basic ' + Buffer.from(`admin:${process.env.ESPOCRM_ADMIN_PASSWORD}`).toString('base64');
 
 async function api(method, path, body) {

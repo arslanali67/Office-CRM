@@ -46,7 +46,7 @@ Everything below is something only the owner can get or decide. Nothing here is 
 - For bounce handling, a second mailbox `bounces@<your-domain>` (optional, can be added later).
 
 ## 5. Business facts for the AI (the Knowledge Base)
-The AI may only use facts you write. Fill this once; I load it, or you type it into the Knowledge Base tab. One short paragraph per topic is enough. **Prices must be written exactly, with currency**, because any price the AI says that is not in the Knowledge Base is blocked.
+The AI may only use facts you write. Write them in `docs/KNOWLEDGE-BASE.md` (it holds invented TEST facts until then) and run `node --env-file=.env scripts/load-kb.mjs`, or type them into the Knowledge Base tab. One short paragraph per topic is enough. **Prices must be written exactly, with currency**, because any price the AI says that is not in the Knowledge Base is blocked.
 
 | Topic | Write down |
 |---|---|

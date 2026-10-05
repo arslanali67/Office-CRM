@@ -24,7 +24,7 @@ trap 'rm -f .deploy-env' EXIT INT TERM
 set -a; . ./.env; set +a
 if [ "$LOCAL" = 1 ]; then
   export COMPOSE_PATH_SEPARATOR=: COMPOSE_FILE=docker-compose.yml:docker-compose.local.yml LOCAL_MAILSERVER=1
-  URL="http://localhost:8080"
+  URL="http://localhost:${ESPO_PORT:-8080}"
 else
   URL="${DEPLOY_URL:-https://${CRM_DOMAIN:-}}"
 fi
@@ -90,7 +90,13 @@ apply_setup() {
   step "Installing the extension and applying the setup (safe to repeat)"
   x sh scripts/install-extension.sh
   for s in m1 m3 m4 m5 m6; do
-    if [ "$DRY" = 1 ]; then echo "  + node scripts/setup-$s.mjs (in a container)"; else runnode scripts/setup-$s.mjs | tail -1; fi
+    [ "$DRY" = 1 ] && { echo "  + node scripts/setup-$s.mjs (in a container)"; continue; }
+    # up to 3 tries (Docker's internal DNS can briefly fail for a new container); a failure stops the deploy
+    i=0; until out=$(runnode scripts/setup-$s.mjs 2>&1); do
+      i=$((i+1)); [ $i -lt 3 ] || { echo "$out" >&2; echo "setup-$s.mjs failed: deploy stopped" >&2; exit 1; }
+      echo "setup-$s.mjs failed, retrying..."; sleep 5
+    done
+    echo "$out" | tail -1
   done
   x docker compose up -d automation # reload the secrets the setup scripts generated
 }
@@ -116,11 +122,11 @@ run_checks() {
   RUNNING=$(docker compose ps --status running --format '{{.Service}}')
   for s in $WANT; do echo "$RUNNING" | grep -qx "$s" && pass "service $s is running" || bad "service $s is NOT running"; done
 
-  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$URL/api/v1/App/user" || true)
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 --retry 2 --retry-delay 5 --retry-all-errors "$URL/api/v1/App/user" || true)
   [ "$code" = 401 ] && pass "CRM answers at $URL" || bad "CRM at $URL answered '$code' (expected 401 without login)"
-  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -u "admin:$ESPOCRM_ADMIN_PASSWORD" "$URL/api/v1/App/user" || true)
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 --retry 2 --retry-delay 5 --retry-all-errors -u "admin:$ESPOCRM_ADMIN_PASSWORD" "$URL/api/v1/App/user" || true)
   [ "$code" = 200 ] && pass "owner login works" || bad "owner login answered '$code'"
-  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 -u "admin:$ESPOCRM_ADMIN_PASSWORD" "$URL/api/v1/Attendance/action/status" || true)
+  code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 --retry 2 --retry-delay 5 --retry-all-errors -u "admin:$ESPOCRM_ADMIN_PASSWORD" "$URL/api/v1/Attendance/action/status" || true)
   [ "$code" = 200 ] && pass "our extension is installed" || bad "extension endpoint answered '$code'"
 
   if [ "$LOCAL" = 0 ]; then
@@ -138,7 +144,7 @@ run_checks() {
   fi
   if [ -n "${META_VERIFY_TOKEN:-}" ]; then
     ch="ok$$"; got=$(curl -s --max-time 20 "$URL/webhooks/meta?hub.mode=subscribe&hub.verify_token=$META_VERIFY_TOKEN&hub.challenge=$ch" || true)
-    [ "$got" = "$ch" ] && pass "Meta webhook URL answers the handshake" || { [ "$LOCAL" = 1 ] && pass "Meta webhook not exposed locally (served on :3100 only)" || bad "Meta webhook URL did not answer the handshake"; }
+    [ "$got" = "$ch" ] && pass "Meta webhook URL answers the handshake" || { [ "$LOCAL" = 1 ] && pass "Meta webhook not exposed locally (served on :${AUTOMATION_PORT:-3100} only)" || bad "Meta webhook URL did not answer the handshake"; }
   fi
   [ "$(docker compose exec -T automation wget -qO- http://localhost:3000/health 2>/dev/null)" = ok ] && pass "automation service is healthy" || bad "automation service health check failed"
   find backups -name 'db_*' -mmin -1560 2>/dev/null | grep -q . && pass "a backup from the last 26 hours exists" || warn "no backup from the last 26 hours"
@@ -166,7 +172,7 @@ install)
 
 Next (by hand):
   1. Log in as admin at your CRM address; enrol two-factor: top right menu > Preferences > Security.
-  2. Replace the PLACEHOLDER knowledge base articles with your real facts (Knowledge Base tab).
+  2. Replace the (TEST) knowledge base facts with your real ones: docs/KNOWLEDGE-BASE.md, then node --env-file=.env scripts/load-kb.mjs
   3. Add staff:  sh scripts/deploy.sh add-employee <userName> "<First>" "<Last>" <email>
   4. Meta: set the webhook callback to https://<your-domain>/webhooks/meta with the verify token from .env.
   5. Keep draft-only mode on for the first two weeks (dashboard > AI control).

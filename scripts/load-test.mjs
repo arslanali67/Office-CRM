@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process';
 import { importLeads } from './import-leads.mjs';
 
 const DMS = Number(process.argv[2] ?? 1000), LEADS = Number(process.argv[3] ?? 5000);
-const BASE = 'http://localhost:8080/api/v1/';
+const BASE = `http://localhost:${process.env.ESPO_PORT ?? 8080}/api/v1/`;
 const admin = { Authorization: 'Basic ' + Buffer.from(`admin:${process.env.ESPOCRM_ADMIN_PASSWORD}`).toString('base64'), 'Content-Type': 'application/json' };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const q = o => new URLSearchParams(o).toString();
@@ -24,7 +24,7 @@ const probe = []; let probing = true;
 
 // =============== A. DM burst ===============
 await call('PUT', 'Settings', { aiDraftOnly: false, aiAutoReplyPaused: false, massEmailMaxPerHourCount: 100000 });
-await fetch('http://localhost:4011/_reset', { method: 'POST', body: '{}' });
+await fetch(`http://localhost:${process.env.MOCK_META_PORT ?? 4011}/_reset`, { method: 'POST', body: '{}' });
 const TEXTS = [
   ['What is the price of the Website package?', 'auto'], ['How much does it cost?', 'auto'], ['What services do you offer?', 'auto'], ['Can I book an appointment for Friday?', 'auto'],
   ['What are your opening hours?', 'auto'], ['My order arrived damaged and I am very disappointed.', 'human'], ['I want my money back, this is unacceptable.', 'human'],
@@ -39,7 +39,7 @@ async function worker() {
     const i = next++;
     const [text] = TEXTS[i % TEXTS.length];
     const body = JSON.stringify({ object: i % 3 ? 'page' : 'instagram', entry: [{ id: 'PAGE', messaging: [{ sender: { id: `lt-${stamp}-${i % customers}` }, recipient: { id: 'PAGE' }, timestamp: Date.now(), message: { mid: `lt_${stamp}_${i}`, text } }] }] });
-    const r = await fetch('http://localhost:3100/webhooks/meta', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Hub-Signature-256': sign(body) }, body }).catch(() => ({ status: 0 }));
+    const r = await fetch(`http://localhost:${process.env.AUTOMATION_PORT ?? 3100}/webhooks/meta`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Hub-Signature-256': sign(body) }, body }).catch(() => ({ status: 0 }));
     r.status === 200 ? accepted++ : rejected++;
   }
 }
@@ -62,7 +62,7 @@ while (Date.now() < deadline) {
   await sleep(10_000);
 }
 const dmSecs = (Date.now() - tA) / 1000;
-const sent = (await (await fetch('http://localhost:4011/_sent')).json()).length;
+const sent = (await (await fetch(`http://localhost:${process.env.MOCK_META_PORT ?? 4011}/_sent`)).json()).length;
 const final = await count(new Set(['auto_replied']));
 const ai = await count(new Set(['needs_human']));
 results.dm = { posted: DMS, accepted, stored: last.total, finished: last.n, seconds: Math.round(dmSecs), perMinute: Math.round(last.n / (dmSecs / 60)), autoReplied: final.n, needsHuman: ai.n, metaSends: sent };

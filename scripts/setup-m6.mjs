@@ -1,6 +1,6 @@
 // M6 setup via EspoCRM REST API. Idempotent. Run order: setup-m1, m3, m4, m5, m6 (after the extension is installed).
 // Usage: node --env-file=.env scripts/setup-m6.mjs
-const BASE = (process.env.BASE_URL ?? 'http://localhost:8080') + '/api/v1/';
+const BASE = (process.env.BASE_URL ?? `http://localhost:${process.env.ESPO_PORT ?? 8080}`) + '/api/v1/';
 const AUTH = 'Basic ' + Buffer.from(`admin:${process.env.ESPOCRM_ADMIN_PASSWORD}`).toString('base64');
 
 async function api(method, path, body) {

@@ -4,7 +4,7 @@ import net from 'node:net';
 import { execSync } from 'node:child_process';
 import { importLeads } from './import-leads.mjs';
 
-const BASE = 'http://localhost:8080/api/v1/';
+const BASE = `http://localhost:${process.env.ESPO_PORT ?? 8080}/api/v1/`;
 const admin = { Authorization: 'Basic ' + Buffer.from(`admin:${process.env.ESPOCRM_ADMIN_PASSWORD}`).toString('base64') };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const call = async (method, path, body, who = admin) => {
@@ -27,7 +27,7 @@ const ok = (name, cond, extra = '') => { console.log(cond ? 'PASS' : 'FAIL', nam
 
 function smtp(from, to, subject, body) {
   return new Promise((resolve, reject) => {
-    const s = net.connect(3025, 'localhost');
+    const s = net.connect(Number(process.env.GREENMAIL_SMTP_PORT ?? 3025), 'localhost');
     const msg = `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\nMessage-ID: <${Date.now()}.${Math.random().toString(36).slice(2)}@lead.test>\r\nDate: ${new Date().toUTCString()}\r\nContent-Type: text/plain; charset=utf-8\r\n\r\n${body}\r\n.\r\n`;
     const steps = ['HELO test', `MAIL FROM:<${from}>`, `RCPT TO:<${to}>`, 'DATA', msg, 'QUIT'];
     let i = -1, buf = '';

@@ -1,6 +1,6 @@
 // M1 setup via EspoCRM REST API. Idempotent: safe to re-run.
 // Usage: node --env-file=.env scripts/setup-m1.mjs   (BASE_URL defaults to http://localhost:8080)
-const BASE = (process.env.BASE_URL ?? 'http://localhost:8080') + '/api/v1/';
+const BASE = (process.env.BASE_URL ?? `http://localhost:${process.env.ESPO_PORT ?? 8080}`) + '/api/v1/';
 const AUTH = 'Basic ' + Buffer.from(`admin:${process.env.ESPOCRM_ADMIN_PASSWORD}`).toString('base64');
 
 async function api(method, path, body) {

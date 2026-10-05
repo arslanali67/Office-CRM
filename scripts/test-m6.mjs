@@ -5,7 +5,7 @@ import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import net from 'node:net';
 
-const BASE = 'http://localhost:8080/api/v1/';
+const BASE = `http://localhost:${process.env.ESPO_PORT ?? 8080}/api/v1/`;
 const basic = (u, p) => ({ Authorization: 'Basic ' + Buffer.from(`${u}:${p}`).toString('base64') });
 const admin = basic('admin', process.env.ESPOCRM_ADMIN_PASSWORD);
 const emp = n => basic(`emp${n}`, process.env.EMPLOYEE_PASSWORD);
@@ -32,12 +32,12 @@ let seq = 0;
 async function dmPost(object, cust, text) {
   const body = { object, entry: [{ id: 'PAGE', messaging: [{ sender: { id: cust }, recipient: { id: 'PAGE' }, timestamp: Date.now(), message: { mid: `m6_${stamp}_${++seq}`, text } }] }] };
   const raw = JSON.stringify(body);
-  await fetch('http://localhost:3100/webhooks/meta', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Hub-Signature-256': 'sha256=' + createHmac('sha256', process.env.META_APP_SECRET).update(raw).digest('hex') }, body: raw });
+  await fetch(`http://localhost:${process.env.AUTOMATION_PORT ?? 3100}/webhooks/meta`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Hub-Signature-256': 'sha256=' + createHmac('sha256', process.env.META_APP_SECRET).update(raw).digest('hex') }, body: raw });
   return body.entry[0].messaging[0].message.mid;
 }
 const msgByExt = async ext => (await call(admin, 'GET', `SocialMessage?${q({ 'where[0][type]': 'equals', 'where[0][attribute]': 'externalId', 'where[0][value]': ext, maxSize: '1' })}`)).j.list?.[0];
 const settled = async mid => { const m = await waitFor(async () => (await msgByExt(mid))?.aiCategory ? msgByExt(mid) : null, 15_000, 300); await sleep(1500); return m ? msgByExt(mid) : null; };
-const mockSent = async () => (await fetch('http://localhost:4011/_sent')).json();
+const mockSent = async () => (await fetch(`http://localhost:${process.env.MOCK_META_PORT ?? 4011}/_sent`)).json();
 
 const runReport = date => JSON.parse(sh(`docker compose exec -T automation node src/reports.ts ${date}`).trim().split('\n').pop());
 const getReport = async id => (await call(admin, 'GET', `DailyReport/${id}`)).j;
@@ -48,7 +48,7 @@ const uid = async n => (await call(admin, 'GET', `User?${q({ 'where[0][type]': '
 const fmt = d => d.toISOString().slice(0, 19).replace('T', ' ');
 
 await call(admin, 'PUT', 'Settings', { aiDraftOnly: false, aiAutoReplyPaused: false });
-await fetch('http://localhost:4011/_reset', { method: 'POST', body: '{}' });
+await fetch(`http://localhost:${process.env.MOCK_META_PORT ?? 4011}/_reset`, { method: 'POST', body: '{}' });
 
 // =============== A. report numbers (deltas around known fixtures) ===============
 const before = await getReport(runReport(today).id);
@@ -92,7 +92,7 @@ const mPaused = await settled(pausedMid);
 ok('paused: a confident pricing DM is NOT sent, it waits for a person', mPaused?.status === 'needs_human' && mPaused.aiDraft && (await mockSent()).length === sentBefore, JSON.stringify([mPaused?.status]));
 // email path uses the same switch
 const smtp = (from, to, subject, body) => new Promise((resolve, reject) => {
-  const s = net.connect(3025, 'localhost');
+  const s = net.connect(Number(process.env.GREENMAIL_SMTP_PORT ?? 3025), 'localhost');
   const msg = `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\nMessage-ID: <${Date.now()}.${Math.random().toString(36).slice(2)}@m6.test>\r\nDate: ${new Date().toUTCString()}\r\nContent-Type: text/plain\r\n\r\n${body}\r\n.\r\n`;
   const steps = ['HELO t', `MAIL FROM:<${from}>`, `RCPT TO:<${to}>`, 'DATA', msg, 'QUIT']; let i = -1, buf = '';
   s.on('data', x => { buf += x; if (!/\r?\n$/.test(buf) || /^\d{3}-/m.test(buf.split(/\r?\n/).filter(Boolean).pop() ?? '')) return; buf = ''; i++; if (i < steps.length) s.write(steps[i] + (i === 4 ? '' : '\r\n')); else { s.end(); resolve(); } });

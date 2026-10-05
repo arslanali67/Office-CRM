@@ -3,7 +3,7 @@
 import net from 'node:net';
 import { execSync } from 'node:child_process';
 
-const BASE = (process.env.BASE_URL ?? 'http://localhost:8080') + '/api/v1/';
+const BASE = (process.env.BASE_URL ?? `http://localhost:${process.env.ESPO_PORT ?? 8080}`) + '/api/v1/';
 const basic = (u, p) => 'Basic ' + Buffer.from(`${u}:${p}`).toString('base64');
 const admin = { Authorization: basic('admin', process.env.ESPOCRM_ADMIN_PASSWORD) };
 const emp = n => ({ Authorization: basic(`emp${n}`, process.env.EMPLOYEE_PASSWORD) });
@@ -30,7 +30,7 @@ const ok = (name, cond, extra = '') => { console.log(cond ? 'PASS' : 'FAIL', nam
 // ---- tiny SMTP client (to the GreenMail "company mail server") ----
 function smtp(from, to, subject, body, extraHeaders = '') {
   return new Promise((resolve, reject) => {
-    const s = net.connect(3025, 'localhost');
+    const s = net.connect(Number(process.env.GREENMAIL_SMTP_PORT ?? 3025), 'localhost');
     const id = `<${Date.now()}.${Math.random().toString(36).slice(2)}@customer.test>`;
     const msg = `From: ${from}\r\nTo: ${to}\r\nSubject: ${subject}\r\nMessage-ID: ${id}\r\nDate: ${new Date().toUTCString()}\r\n${extraHeaders}Content-Type: text/plain; charset=utf-8\r\n\r\n${body}\r\n.\r\n`;
     const steps = [`HELO test`, `MAIL FROM:<${from}>`, `RCPT TO:<${to}>`, `DATA`, msg, `QUIT`];

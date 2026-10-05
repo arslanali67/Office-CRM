@@ -2,7 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 
 // M4 setup via EspoCRM REST API. Idempotent. Run order: setup-m1, setup-m3, setup-m4 (after the extension is installed).
 // Usage: node --env-file=.env scripts/setup-m4.mjs
-const BASE = (process.env.BASE_URL ?? 'http://localhost:8080') + '/api/v1/';
+const BASE = (process.env.BASE_URL ?? `http://localhost:${process.env.ESPO_PORT ?? 8080}`) + '/api/v1/';
 const AUTH = 'Basic ' + Buffer.from(`admin:${process.env.ESPOCRM_ADMIN_PASSWORD}`).toString('base64');
 
 async function api(method, path, body) {

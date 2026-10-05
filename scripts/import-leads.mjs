@@ -10,7 +10,7 @@ export const MAPPING = {
   industry: 'industryText', city: 'addressCity', interest: 'interestTopic', notes: 'description',
 };
 
-export async function importLeads(csv, listName, { base = process.env.BASE_URL ?? 'http://localhost:8080', password = process.env.ESPOCRM_ADMIN_PASSWORD, assignedUserId, removeDuplicates = true } = {}) {
+export async function importLeads(csv, listName, { base = process.env.BASE_URL ?? `http://localhost:${process.env.ESPO_PORT ?? 8080}`, password = process.env.ESPOCRM_ADMIN_PASSWORD, assignedUserId, removeDuplicates = true } = {}) {
   const headers = { Authorization: 'Basic ' + Buffer.from(`admin:${password}`).toString('base64') };
   // node:http instead of fetch: a big import runs for minutes inside one request, and fetch gives up after 5 minutes.
   const call = (method, path, body, type = 'application/json') => new Promise((resolve, reject) => {

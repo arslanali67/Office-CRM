@@ -1,7 +1,7 @@
 """Dump a GreenMail (local test mail server) mailbox as JSON. Usage: python read-mailbox.py <login> [folder]"""
-import email, imaplib, io, json, sys
+import email, imaplib, io, json, os, sys
 
-m = imaplib.IMAP4('localhost', 3143)
+m = imaplib.IMAP4('localhost', int(os.environ.get('GREENMAIL_IMAP_PORT', 3143)))
 m.login(sys.argv[1], 'x')
 m.select(sys.argv[2] if len(sys.argv) > 2 else 'INBOX')
 

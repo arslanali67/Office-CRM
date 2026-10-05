@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 
-const BASE = (process.env.BASE_URL ?? 'http://localhost:8080') + '/api/v1/';
+const BASE = (process.env.BASE_URL ?? `http://localhost:${process.env.ESPO_PORT ?? 8080}`) + '/api/v1/';
 const AUTH = 'Basic ' + Buffer.from(`admin:${process.env.ESPOCRM_ADMIN_PASSWORD}`).toString('base64');
 
 async function api(method, path, body) {
@@ -62,16 +62,8 @@ await upsert('InboundEmail', 'emailAddress', addr, {
   teamsIds: [],
 });
 
-// ---- Placeholder knowledge base (replace with real company facts: M0.8) ----
-const kb = [
-  ['Services (PLACEHOLDER)', 'We offer website design, SEO and social media management for small businesses. Our team builds mobile-friendly websites and helps them rank locally.'],
-  ['Pricing (PLACEHOLDER)', 'Website + SEO Starter package costs USD 799 and is delivered in 3 weeks. Social media management starts at USD 199 per month.'],
-  ['Opening hours (PLACEHOLDER)', 'We are open Monday to Friday, 9:00 to 17:00. We are closed on weekends and public holidays.'],
-  ['Booking a call or appointment (PLACEHOLDER)', 'To book a free 15 minute consultation call, reply with your preferred day and time. A team member confirms the slot by email.'],
-  ['Policies (PLACEHOLDER)', 'Refunds, complaints and legal matters are handled personally by the owner. We never share customer data with third parties.'],
-];
-for (const [name, text] of kb)
-  await upsert('KnowledgeBaseArticle', 'name', name, { name, status: 'Published', type: 'Article', body: `<p>${text}</p>`, bodyPlain: text });
+// ---- Knowledge base: docs/KNOWLEDGE-BASE.md (test facts until the owner's real ones: M0.8 / M3.2) ----
+await import('./load-kb.mjs');
 
 // ---- Auto Reply Rules (Appendix B defaults; draft-only mode still blocks all sending) ----
 const rules = { inquiry: true, pricing: true, booking: true, complaint: false, refund_legal: false, lead_reply: false, spam: false, other: false };

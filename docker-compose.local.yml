@@ -1,15 +1,16 @@
 # Local dev override: docker compose -f docker-compose.yml -f docker-compose.local.yml up -d
+# Host ports can be changed in .env (ESPO_PORT, WS_PORT, AUTOMATION_PORT, MOCK_META_PORT, GREENMAIL_*_PORT) to run a staging copy next to dev.
 services:
   espocrm:
-    ports: ["8080:80"]
+    ports: ["${ESPO_PORT:-8080}:80"]
     environment:
-      ESPOCRM_SITE_URL: http://localhost:8080
+      ESPOCRM_SITE_URL: http://localhost:${ESPO_PORT:-8080}
   espocrm-websocket:
-    ports: ["8081:8080"]
+    ports: ["${WS_PORT:-8081}:8080"]
     environment:
-      ESPOCRM_CONFIG_WEB_SOCKET_URL: ws://localhost:8081
+      ESPOCRM_CONFIG_WEB_SOCKET_URL: ws://localhost:${WS_PORT:-8081}
   automation:
-    ports: ["3100:3000"]
+    ports: ["${AUTOMATION_PORT:-3100}:3000"]
     environment:
       GRAPH_URL: http://mock-meta:4010/v21.0
   # Fake Meta Graph API (Send API + profiles): see automation/test/mock-graph.ts
@@ -18,13 +19,13 @@ services:
     restart: unless-stopped
     command: ["node", "/app/mock-graph.ts"]
     volumes: ["./automation/test/mock-graph.ts:/app/mock-graph.ts:ro"]
-    ports: ["4011:4010"]
+    ports: ["${MOCK_META_PORT:-4011}:4010"]
   # Fake company mail server: SMTP 3025, IMAP 3143, no auth, mailboxes are created on first delivery.
   greenmail:
     image: greenmail/standalone:2.1.3
     restart: unless-stopped
     environment:
       JAVA_OPTS: -Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled
-    ports: ["3025:3025", "3143:3143"]
+    ports: ["${GREENMAIL_SMTP_PORT:-3025}:3025", "${GREENMAIL_IMAP_PORT:-3143}:3143"]
   caddy:
     profiles: ["prod"]

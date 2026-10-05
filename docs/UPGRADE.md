@@ -40,6 +40,15 @@ sh scripts/restore.sh <time> --from-remote  # fetches that backup from the off-s
 `<time>` is the part of the file name after `db_`, e.g. `2026-10-01_0215`. Rehearse without touching live data: `RESTORE_DB=restore_check RESTORE_FILES=0 sh scripts/restore.sh <time> --yes` (restores only the database into a scratch database).
 Test a restore on staging at least once before go-live, and after every major change of the setup.
 
+## Staging on the same machine (R10 / M0.6)
+Staging is a second copy of this folder with its own `.env`, so it gets its own containers, volumes and database (the Compose project is named after the folder).
+1. Copy the code (not `.env`, `.git`, `backups`, `dist`, `site-rendered`) to a sibling folder, e.g. `../office-crm-staging`.
+2. In its `.env` use new passwords, empty `ESPO_API_KEY` / `WEBHOOK_SECRET*` (the setup fills them) and different ports and network:
+   `ESPO_PORT=8180 WS_PORT=8181 AUTOMATION_PORT=3200 MOCK_META_PORT=4111 GREENMAIL_SMTP_PORT=3125 GREENMAIL_IMAP_PORT=3243 INTERNAL_SUBNET=10.78.78.0/24 AUTOMATION_IP=10.78.78.10` (one per line).
+3. In the staging folder: `sh scripts/deploy.sh install --local --yes` (CRM at http://localhost:8180). The test scripts read the same ports from `.env`.
+4. To try new code: copy the changed files into the staging folder, then `sh scripts/deploy.sh update --local --yes` (backs up first); if it goes wrong, `sh scripts/deploy.sh rollback --local --yes`.
+On a server, staging is the same thing on its own VM or folder with `CRM_DOMAIN=staging.<domain>`, without `--local`.
+
 ## Other updates
 - **Operating system**: automatic security updates are on (`scripts/harden-server.sh`); reboot in a quiet hour when the server says it is needed (`/var/run/reboot-required`).
 - **Containers** (mysql, caddy, node): `docker compose pull && docker compose up -d` monthly; same staging-first rule.

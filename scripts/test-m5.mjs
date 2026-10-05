@@ -4,9 +4,9 @@
 import { createHmac } from 'node:crypto';
 import { execSync } from 'node:child_process';
 
-const BASE = 'http://localhost:8080/api/v1/';
-const AUTOMATION = 'http://localhost:3100';
-const MOCK = 'http://localhost:4011';
+const BASE = `http://localhost:${process.env.ESPO_PORT ?? 8080}/api/v1/`;
+const AUTOMATION = `http://localhost:${process.env.AUTOMATION_PORT ?? 3100}`;
+const MOCK = `http://localhost:${process.env.MOCK_META_PORT ?? 4011}`;
 const basic = (u, p) => ({ Authorization: 'Basic ' + Buffer.from(`${u}:${p}`).toString('base64') });
 const admin = basic('admin', process.env.ESPOCRM_ADMIN_PASSWORD);
 const emp = n => basic(`emp${n}`, process.env.EMPLOYEE_PASSWORD);

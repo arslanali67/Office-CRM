@@ -4,7 +4,7 @@ import { createHmac } from 'node:crypto';
 import { execSync } from 'node:child_process';
 import net from 'node:net';
 
-const B = 'http://localhost:8080/api/v1/';
+const B = `http://localhost:${process.env.ESPO_PORT ?? 8080}/api/v1/`;
 const basic = (u, p) => ({ Authorization: 'Basic ' + Buffer.from(`${u}:${p}`).toString('base64'), 'Content-Type': 'application/json' });
 const admin = basic('admin', process.env.ESPOCRM_ADMIN_PASSWORD), e1h = basic('emp1', process.env.EMPLOYEE_PASSWORD), e2h = basic('emp2', process.env.EMPLOYEE_PASSWORD);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -37,7 +37,7 @@ await settings({ aiDraftOnly: true, aiAutoReplyPaused: false, autoAssign: true, 
 async function dm(text, label) {
   const cust = `psid-${stamp}-${label}-${++seq}`, mid = `as_${stamp}_${seq}`;
   const body = JSON.stringify({ object: 'page', entry: [{ id: 'PAGE', messaging: [{ sender: { id: cust }, recipient: { id: 'PAGE' }, timestamp: Date.now(), message: { mid, text } }] }] });
-  await fetch('http://localhost:3100/webhooks/meta', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Hub-Signature-256': 'sha256=' + createHmac('sha256', process.env.META_APP_SECRET).update(body).digest('hex') }, body });
+  await fetch(`http://localhost:${process.env.AUTOMATION_PORT ?? 3100}/webhooks/meta`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Hub-Signature-256': 'sha256=' + createHmac('sha256', process.env.META_APP_SECRET).update(body).digest('hex') }, body });
   const m = await waitFor(async () => { const x = (await call(admin, 'GET', `SocialMessage?${q({ 'where[0][type]': 'equals', 'where[0][attribute]': 'externalId', 'where[0][value]': mid, maxSize: '1' })}`)).j.list?.[0]; return x?.aiCategory ? x : null; });
   await sleep(1200); // assignment follows classification
   return (await call(admin, 'GET', `Conversation/${m.conversationId}`)).j;
@@ -67,7 +67,7 @@ ok('afterwards the split stays within one message', Math.abs(load(e1) - load(e2)
 // 4. existing assignee is kept for the same customer
 const again = await (async () => { const first = c1[0]; const mid = `as_${stamp}_same`;
   const body = JSON.stringify({ object: 'page', entry: [{ id: 'PAGE', messaging: [{ sender: { id: first.customerId }, recipient: { id: 'PAGE' }, timestamp: Date.now(), message: { mid, text: 'Hello again, one more question: what are your hours?' } }] }] });
-  await fetch('http://localhost:3100/webhooks/meta', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Hub-Signature-256': 'sha256=' + createHmac('sha256', process.env.META_APP_SECRET).update(body).digest('hex') }, body });
+  await fetch(`http://localhost:${process.env.AUTOMATION_PORT ?? 3100}/webhooks/meta`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Hub-Signature-256': 'sha256=' + createHmac('sha256', process.env.META_APP_SECRET).update(body).digest('hex') }, body });
   await sleep(4000); return (await call(admin, 'GET', `Conversation/${first.id}`)).j; })();
 ok('the same customer keeps talking to the same employee', again.assignedUserId === first(c1).assignedUserId);
 function first(a) { return a[0]; }
@@ -88,7 +88,7 @@ await settings({ autoAssignOnlyCheckedIn: true });
 
 // 6. email path
 const smtp = (from, subject, body) => new Promise((resolve, reject) => {
-  const s = net.connect(3025, 'localhost');
+  const s = net.connect(Number(process.env.GREENMAIL_SMTP_PORT ?? 3025), 'localhost');
   const msg = `From: ${from}\r\nTo: support@crm.test\r\nSubject: ${subject}\r\nMessage-ID: <${Date.now()}.${Math.random().toString(36).slice(2)}@as.test>\r\nDate: ${new Date().toUTCString()}\r\nContent-Type: text/plain\r\n\r\n${body}\r\n.\r\n`;
   const steps = ['HELO t', `MAIL FROM:<${from}>`, 'RCPT TO:<support@crm.test>', 'DATA', msg, 'QUIT']; let i = -1, buf = '';
   s.on('data', x => { buf += x; if (!/\r?\n$/.test(buf) || /^\d{3}-/m.test(buf.split(/\r?\n/).filter(Boolean).pop() ?? '')) return; buf = ''; i++; if (i < steps.length) s.write(steps[i] + (i === 4 ? '' : '\r\n')); else { s.end(); resolve(); } });

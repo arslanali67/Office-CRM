@@ -1,6 +1,6 @@
 // M2 acceptance checks. Usage: node --env-file=.env scripts/test-m2.mjs  (needs docker compose env for the job test)
 import { execSync } from 'node:child_process';
-const BASE = (process.env.BASE_URL ?? 'http://localhost:8080') + '/api/v1/';
+const BASE = (process.env.BASE_URL ?? `http://localhost:${process.env.ESPO_PORT ?? 8080}`) + '/api/v1/';
 const auth = (u, p) => 'Basic ' + Buffer.from(`${u}:${p}`).toString('base64');
 const call = async (who, method, path, body) => {
   const r = await fetch(BASE + path, { method, headers: { Authorization: who, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
