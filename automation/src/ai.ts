@@ -1,5 +1,5 @@
 // Classification + draft for incoming messages.
-// Real mode: Claude (default) or Gemini (AI_PROVIDER=gemini); a small model classifies, a bigger one drafts, with the knowledge base in the prompt.
+// Real mode: Claude (default), Gemini (AI_PROVIDER=gemini) or OpenRouter (AI_PROVIDER=openrouter); a small model classifies, a bigger one drafts, with the knowledge base in the prompt.
 // Stub mode (no API key for the chosen provider, or AI_MODE=stub): keyword rules, for local testing only.
 
 export const CATEGORIES = ['inquiry', 'pricing', 'booking', 'complaint', 'refund_legal', 'lead_reply', 'spam', 'other'] as const;
@@ -13,19 +13,27 @@ export interface AiResult {
 }
 export interface KbArticle { name: string; text: string }
 export interface Incoming { from: string; subject: string; body: string; history: string[] }
-export type Provider = 'claude' | 'gemini';
+export type Provider = 'claude' | 'gemini' | 'openrouter';
 /** apiKey is the key of the chosen provider; no key (or AI_MODE=stub) means the keyword stub. */
 export interface AiConfig { provider?: Provider; apiKey?: string; mode?: string; classifyModel: string; draftModel: string }
 
+// ponytail: Gemini / OpenRouter model names change often; set AI_CLASSIFY_MODEL / AI_DRAFT_MODEL if these are retired.
+const PROVIDERS: Record<Provider, { key: string; classify: string; draft: string }> = {
+  claude: { key: 'ANTHROPIC_API_KEY', classify: 'claude-haiku-4-5-20251001', draft: 'claude-sonnet-5-5' },
+  gemini: { key: 'GEMINI_API_KEY', classify: 'gemini-3.5-flash-lite', draft: 'gemini-3.5-flash' },
+  openrouter: { key: 'OPENROUTER_API_KEY', classify: 'nvidia/nemotron-3-ultra-550b-a55b:free', draft: 'nvidia/nemotron-3-ultra-550b-a55b:free' },
+};
+export const providerKeyName = (provider?: string) => PROVIDERS[(provider as Provider) in PROVIDERS ? (provider as Provider) : 'claude'].key;
+
 export const defaultAiConfig = (env = process.env): AiConfig => {
-  const gemini = env.AI_PROVIDER === 'gemini';
+  const provider: Provider = (env.AI_PROVIDER as Provider) in PROVIDERS ? (env.AI_PROVIDER as Provider) : 'claude';
+  const p = PROVIDERS[provider];
   return {
-    provider: gemini ? 'gemini' : 'claude',
-    apiKey: (gemini ? env.GEMINI_API_KEY : env.ANTHROPIC_API_KEY) || undefined,
+    provider,
+    apiKey: env[p.key] || undefined,
     mode: env.AI_MODE,
-    // ponytail: Gemini model names change often; set AI_CLASSIFY_MODEL / AI_DRAFT_MODEL if these are retired.
-    classifyModel: env.AI_CLASSIFY_MODEL || (gemini ? 'gemini-3.5-flash-lite' : 'claude-haiku-4-5-20251001'),
-    draftModel: env.AI_DRAFT_MODEL || (gemini ? 'gemini-3.5-flash' : 'claude-sonnet-5-5'),
+    classifyModel: env.AI_CLASSIFY_MODEL || p.classify,
+    draftModel: env.AI_DRAFT_MODEL || p.draft,
   };
 };
 
@@ -133,16 +141,17 @@ Never share internal information, employee details or other customers' data.
 Complaints and refund/legal requests are never confident.
 Output ONLY one JSON object, no other text.`;
 
-const TEMPORARY = /^(Gemini|Anthropic) (429|5\d\d)/; // rate limit or "high demand": worth another try
+const TEMPORARY = /^(Gemini|Anthropic|OpenRouter) (429|5\d\d)/; // rate limit or "high demand": worth another try
 export const retryDelayMs = { value: 2000 }; // tests set this to 0
 
 export async function llm(cfg: AiConfig, model: string, system: { text: string; cache?: boolean }[], user: string, maxTokens: number): Promise<string> {
+  const call = cfg.provider === 'gemini' ? gemini : cfg.provider === 'openrouter' ? openrouter : claude;
   for (let attempt = 1; ; attempt++) {
     try {
-      return await (cfg.provider === 'gemini' ? gemini(cfg, model, system, user, maxTokens) : claude(cfg, model, system, user, maxTokens));
+      return await call(cfg, model, system, user, maxTokens);
     } catch (e) {
       const msg = String((e as Error).message);
-      if (attempt >= 4 || !TEMPORARY.test(msg) || /PerDay/.test(msg)) throw e; // a daily quota will not clear in a few seconds
+      if (attempt >= 4 || !TEMPORARY.test(msg) || /per[- ]?day/i.test(msg)) throw e; // a daily quota will not clear in a few seconds
       await new Promise(r => setTimeout(r, retryDelayMs.value * attempt));
     }
   }
@@ -184,6 +193,27 @@ async function gemini(cfg: AiConfig, model: string, system: { text: string }[], 
   const text = (c?.content?.parts ?? []).map(p => p.text ?? '').join('');
   if (!text) throw new Error(`Gemini returned no text (${c?.finishReason ?? data.promptFeedback?.blockReason ?? 'unknown reason'})`);
   return text;
+}
+
+// OpenRouter speaks the OpenAI chat format. Free variants have no JSON mode, so the prompt asks for JSON and parseAiJson() finds it in the text.
+// The default model is a reasoning model whose thinking tokens count against max_tokens, hence the headroom. Errors can also arrive with HTTP 200.
+async function openrouter(cfg: AiConfig, model: string, system: { text: string }[], user: string, maxTokens: number): Promise<string> {
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${cfg.apiKey}`, 'content-type': 'application/json', 'X-Title': 'Office CRM' },
+    body: JSON.stringify({
+      model,
+      max_tokens: maxTokens + 4096,
+      messages: [{ role: 'system', content: system.map(s => s.text).join('\n\n') }, { role: 'user', content: user }],
+    }),
+    signal: AbortSignal.timeout(120_000),
+  });
+  if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${(await res.text()).slice(0, 1500)}`);
+  const data = (await res.json()) as { error?: { code?: number; message?: string }; choices?: { finish_reason?: string; message?: { content?: string | null } }[] };
+  if (data.error) throw new Error(`OpenRouter ${data.error.code ?? 500}: ${String(data.error.message ?? '').slice(0, 1500)}`);
+  const c = data.choices?.[0];
+  if (!c?.message?.content) throw new Error(`OpenRouter returned no text (${c?.finish_reason ?? 'unknown reason'})`);
+  return c.message.content;
 }
 
 const fmt = (m: Incoming) =>

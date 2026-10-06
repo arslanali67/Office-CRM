@@ -1,5 +1,5 @@
 // AI for leads (M4): personalised proposals, and interest tagging of replies to them.
-// Same pattern as ai.ts: real AI (Claude or Gemini) when a key is set, keyword stub otherwise; everything validated before use.
+// Same pattern as ai.ts: real AI (Claude, Gemini or OpenRouter) when a key is set, keyword stub otherwise; everything validated before use.
 import { AMOUNT, llm, defaultAiConfig, digits, parseAiJson, unknownContacts, type AiConfig, type KbArticle } from './ai.ts';
 
 export interface Lead {

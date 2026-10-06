@@ -34,6 +34,7 @@ Everything below is something only the owner can get or decide. Nothing here is 
 - Create an account at console.anthropic.com with the company card, then **set a monthly spend limit** (Settings > Limits; USD 50 is plenty to start).
 - Create an API key. Value for `.env`: `ANTHROPIC_API_KEY=...` (leave `AI_MODE` empty).
 - Expected cost: about USD 20-50 a month at launch (PDF section 12).
+- **Optional: OpenRouter** (approved 2026-10-06), for example the free `nvidia/nemotron-3-ultra-550b-a55b:free`: create a key at openrouter.ai/keys and put `AI_PROVIDER=openrouter` and `OPENROUTER_API_KEY=...` in `.env` (leave `AI_MODE` empty). Free models have a daily request cap per account (buying credits raises it; check it with GET https://openrouter.ai/api/v1/key) and the provider may log or train on prompts: invented test data only, never real customers.
 - **Optional: Google Gemini instead of Claude** (approved 2026-10-06): create a key at aistudio.google.com and put `AI_PROVIDER=gemini` and `GEMINI_API_KEY=...` in `.env` (leave `AI_MODE` empty; the Claude key is then not used). If a model name is retired, set `AI_CLASSIFY_MODEL` / `AI_DRAFT_MODEL`. The free tier may be used by Google to improve its products: use it with the invented test data only, and a paid key for real customers.
 
 ## 4. Company mailbox (shared inbox + sending)

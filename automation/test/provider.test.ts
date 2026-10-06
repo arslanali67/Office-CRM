@@ -84,3 +84,52 @@ test('a daily quota error is not retried', async () => {
     assert.equal(f.calls.length, 1);
   } finally { f.restore(); }
 });
+
+const orCfg = { provider: 'openrouter' as const, apiKey: 'SECRET', classifyModel: '', draftModel: '' };
+const orOk = (content: string | null) => new Response(JSON.stringify({ choices: [{ finish_reason: 'stop', message: { content } }] }), { status: 200 });
+
+test('openrouter: config picks its own key and the free Nemotron Ultra model', () => {
+  const c = defaultAiConfig({ AI_PROVIDER: 'openrouter', OPENROUTER_API_KEY: 'o', ANTHROPIC_API_KEY: 'a', GEMINI_API_KEY: 'g' } as any);
+  assert.deepEqual([c.provider, c.apiKey, c.draftModel, c.classifyModel], ['openrouter', 'o', 'nvidia/nemotron-3-ultra-550b-a55b:free', 'nvidia/nemotron-3-ultra-550b-a55b:free']);
+  assert.equal(defaultAiConfig({ AI_PROVIDER: 'openrouter', ANTHROPIC_API_KEY: 'a' } as any).apiKey, undefined);
+  assert.equal(defaultAiConfig({ AI_PROVIDER: 'nonsense', ANTHROPIC_API_KEY: 'a' } as any).provider, 'claude', 'an unknown provider falls back to Claude');
+});
+
+test('openrouter: request format, key in the Authorization header, text read back', async () => {
+  const f = fakeFetch(() => orOk('```json\n{"ok":true}\n```'));
+  try {
+    const out = await llm(orCfg, 'nvidia/x:free', [{ text: 'RULES' }, { text: 'KB' }], 'hello', 100);
+    assert.match(out, /"ok":true/);
+    const { url, init } = f.calls[0];
+    assert.equal(url, 'https://openrouter.ai/api/v1/chat/completions');
+    assert.ok(!url.includes('SECRET'));
+    assert.equal(init.headers.Authorization, 'Bearer SECRET');
+    const body = JSON.parse(init.body);
+    assert.equal(body.model, 'nvidia/x:free');
+    assert.deepEqual(body.messages.map((m: any) => m.role), ['system', 'user']);
+    assert.match(body.messages[0].content, /RULES[\s\S]*KB/);
+    assert.ok(body.max_tokens > 100);
+  } finally { f.restore(); }
+});
+
+test('openrouter: errors (also inside an HTTP 200), empty answers, retries, daily cap', async () => {
+  let f = fakeFetch(() => new Response(JSON.stringify({ error: { code: 400, message: 'bad model' } }), { status: 200 }));
+  try { await assert.rejects(llm(orCfg, 'm', [], 'x', 10), /OpenRouter 400: bad model/); assert.equal(f.calls.length, 1); } finally { f.restore(); }
+  f = fakeFetch(() => orOk(null));
+  try { await assert.rejects(llm(orCfg, 'm', [], 'x', 10), /no text \(stop\)/); } finally { f.restore(); }
+  let n = 0;
+  f = fakeFetch(() => (++n < 2 ? new Response('busy', { status: 503 }) : orOk('{"a":1}')));
+  try { assert.equal(await llm(orCfg, 'm', [], 'x', 10), '{"a":1}'); assert.equal(f.calls.length, 2); } finally { f.restore(); }
+  f = fakeFetch(() => new Response('{"error":{"message":"Rate limit exceeded: free-models-per-day"}}', { status: 429 }));
+  try { await assert.rejects(llm(orCfg, 'm', [], 'x', 10), /OpenRouter 429/); assert.equal(f.calls.length, 1, 'a daily cap is not retried'); } finally { f.restore(); }
+});
+
+test('openrouter end to end: classify + draft from JSON wrapped in text, price guard still applies', async () => {
+  const cfg = { ...orCfg, classifyModel: 'c', draftModel: 'd' };
+  const answer = (draft: string) => (_u: string, init: any) => orOk('Sure.\n' + (JSON.parse(init.body).messages[1].content.startsWith('Classify')
+    ? '{"category":"pricing","reason":"asks price"}' : draft));
+  let f = fakeFetch(answer('{"category":"pricing","confident":true,"reply":"It costs USD 799.","reason":"kb"}'));
+  try { const r = await classifyAndDraft(msg, kb, cfg); assert.deepEqual([r.category, r.confident], ['pricing', true]); } finally { f.restore(); }
+  f = fakeFetch(answer('{"category":"pricing","confident":true,"reply":"It costs USD 500.","reason":"kb"}'));
+  try { assert.equal((await classifyAndDraft(msg, kb, cfg)).confident, false); } finally { f.restore(); }
+});
