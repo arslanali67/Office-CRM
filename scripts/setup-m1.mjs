@@ -125,8 +125,19 @@ await upsert('ScheduledJob', 'Overdue task alert', { name: 'Overdue task alert',
 
 await upsert('ScheduledJob', 'Auto-close forgotten attendance shifts', { name: 'Auto-close forgotten attendance shifts', job: 'AutoCloseAttendance', status: 'Active', scheduling: '5 0 * * *' });
 
+// ---- Branding: logo (branding/logo.png) uploaded only if none is set; app name is set with the settings below ----
+import { existsSync, readFileSync } from 'node:fs';
+const cur = await api('GET', 'Settings');
+let companyLogoId = cur.companyLogoId; // delete the logo in Administration to re-upload branding/logo.png
+const logoPath = new URL('../branding/logo.png', import.meta.url);
+if (!companyLogoId && existsSync(logoPath)) { // no branding/logo.png: skip
+  const file = 'data:image/png;base64,' + readFileSync(logoPath).toString('base64');
+  companyLogoId = (await api('POST', 'Attachment', { name: 'getwebix-logo.png', type: 'image/png', role: 'Attachment', relatedType: 'Settings', field: 'companyLogo', file })).id;
+}
+if (companyLogoId) await api('PUT', 'Settings', { companyLogoId });
+
 // ---- Simplified navigation (unused CRM modules hidden) ----
 // Explicit list; ACL hides entries an employee has no access to. Users/Teams live under Administration.
 const tabList = ['Lead', 'Contact', 'Account', 'Email', 'Task', 'Calendar', 'Attendance', 'KnowledgeBaseArticle', 'AutoReplyRule', 'ProposalBrief', 'Conversation', 'DailyReport', 'Campaign', 'TargetList', 'EmailTemplate', 'Import'];
-await api('PUT', 'Settings', { tabList, assignmentEmailNotifications: true, assignmentEmailNotificationsEntityList: ['Task'], attendanceOfficeStart: process.env.ATTENDANCE_OFFICE_START ?? '09:00', attendanceAllowedIps: process.env.ATTENDANCE_ALLOWED_IPS ?? '', attendanceTrustProxy: process.env.ATTENDANCE_TRUST_PROXY === 'true', auth2FA: true, auth2FAMethodList: ['Totp'], auth2FAForced: false, applicationName: process.env.APP_NAME ?? 'Office CRM' });
+await api('PUT', 'Settings', { tabList, assignmentEmailNotifications: true, assignmentEmailNotificationsEntityList: ['Task'], attendanceOfficeStart: process.env.ATTENDANCE_OFFICE_START ?? '09:00', attendanceAllowedIps: process.env.ATTENDANCE_ALLOWED_IPS ?? '', attendanceTrustProxy: process.env.ATTENDANCE_TRUST_PROXY === 'true', auth2FA: true, auth2FAMethodList: ['Totp'], auth2FAForced: false, applicationName: process.env.APP_NAME ?? 'getwebix CRM' });
 console.log('M1 setup done. Employees:', employees.map(u => u.userName).join(', ') || '(none)');
